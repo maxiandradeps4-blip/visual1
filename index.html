@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Glitch tipográfico reactivo</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Glitch tipográfico reactivo — responsive</title>
 <style>
   * { box-sizing: border-box; }
   html, body {
@@ -17,7 +17,8 @@
     background: #fff;
     font-family: Georgia, "Times New Roman", serif;
   }
-  canvas {
+
+  canvas#view {
     position: fixed;
     inset: 0;
     width: 100%;
@@ -26,121 +27,271 @@
     image-rendering: pixelated;
     image-rendering: crisp-edges;
   }
-  #toggleMic {
+
+  #ui {
     position: fixed;
-    z-index: 20;
-    left: 18px;
-    top: 18px;
+    z-index: 30;
+    top: max(16px, env(safe-area-inset-top));
+    left: max(16px, env(safe-area-inset-left));
+    right: max(16px, env(safe-area-inset-right));
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    pointer-events: none;
+  }
+
+  #toggleMic,
+  #meterWrap {
+    pointer-events: auto;
+  }
+
+  #toggleMic {
     border: 1px solid #000;
     background: #fff;
     color: #000;
     padding: 10px 14px;
     min-height: 42px;
-    font: 700 11px/1 Arial, sans-serif;
+    font: 700 clamp(10px, 1.2vw, 11px)/1 Arial, sans-serif;
     letter-spacing: .12em;
     text-transform: uppercase;
     cursor: pointer;
     mix-blend-mode: difference;
+    max-width: min(78vw, 360px);
   }
+
   #toggleMic:hover {
     background: #000;
     color: #fff;
+  }
+
+  #meterWrap {
+    width: min(30vw, 240px);
+    min-width: 150px;
+    background: rgba(255,255,255,.96);
+    border: 1px solid #000;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    mix-blend-mode: difference;
+  }
+
+  #meterLabel {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font: 700 10px/1 Arial, sans-serif;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #000;
+  }
+
+  #meterCanvas {
+    width: 100%;
+    height: 48px;
+    display: block;
+    background: #fff;
+    border: 1px solid #000;
+    image-rendering: pixelated;
+  }
+
+  #levelBar {
+    width: 100%;
+    height: 8px;
+    background: #fff;
+    border: 1px solid #000;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #levelFill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0%;
+    background: #000;
+  }
+
+  @media (max-width: 720px) {
+    #ui {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    #toggleMic {
+      max-width: none;
+      width: 100%;
+    }
+
+    #meterWrap {
+      width: 100%;
+      min-width: 0;
+    }
   }
 </style>
 </head>
 <body>
 <canvas id="view"></canvas>
-<button id="toggleMic">Activar o desactivar el micrófono</button>
+
+<div id="ui">
+  <button id="toggleMic">Activar o desactivar el micrófono</button>
+
+  <div id="meterWrap" aria-label="Visualizador de sonido de entrada">
+    <div id="meterLabel">
+      <span>Entrada</span>
+      <span id="levelText">0%</span>
+    </div>
+    <canvas id="meterCanvas"></canvas>
+    <div id="levelBar"><div id="levelFill"></div></div>
+  </div>
+</div>
 
 <script>
 (() => {
   const canvas = document.getElementById('view');
   const ctx = canvas.getContext('2d', { alpha: false });
-  const button = document.getElementById('toggleMic');
 
-  let W = innerWidth, H = innerHeight;
-  let dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const button = document.getElementById('toggleMic');
+  const meterCanvas = document.getElementById('meterCanvas');
+  const mctx = meterCanvas.getContext('2d', { alpha: false });
+  const levelFill = document.getElementById('levelFill');
+  const levelText = document.getElementById('levelText');
 
   const scene = document.createElement('canvas');
   const sctx = scene.getContext('2d', { willReadFrequently: true });
+
   const textBuf = document.createElement('canvas');
   const tctx = textBuf.getContext('2d');
 
-  let sceneScale = 0.18;      // bajo para pixelar
+  let W = innerWidth, H = innerHeight;
+  let dpr = Math.min(devicePixelRatio || 1, 2);
+
   let sw = 320, sh = 180;
+  let sceneScale = 0.18;
 
   let audioCtx = null;
   let analyser = null;
   let stream = null;
-  let micActive = false;
   let freqData = null;
   let timeData = null;
   let prevFreq = null;
+  let micActive = false;
 
   let smoothLevel = 0;
   let lowEnergy = 0;
+  let midEnergy = 0;
   let highEnergy = 0;
   let pulse = 0;
   let fluxAvg = 0;
   let frame = 0;
 
-  const calmWords = [
-    'sonido','eco','cariño','afecto','prueba','onda','escucha'
-  ];
-
+  const SENSITIVITY = 1.35;   // mayor sensibilidad general
+  const ONSET_BIAS = 0.009;   // menor umbral para ataques
+  const calmWords = ['sonido','eco','cariño','afecto','escucha','onda','prueba'];
   const denseWords = [
-    'SONIDO','RUIDO','ECO','PULSO','CARIÑO','AFECTO','EXPERIMENTO',
-    'ONDA','SEÑAL','VIBRA','LATIDO','RESONANCIA','TEMBLOR',
-    '////','†','‡','≠','∞','▓▓','▒▒','[]','()','+','×','◼'
+    'SONIDO','RUIDO','ECO','PULSO','CARIÑO','AFECTO','VIBRA','ONDA',
+    'SEÑAL','LATIDO','RESONANCIA','TEMBLOR','EXPERIMENTO',
+    '////','†','‡','×','∞','▓▓','▒▒','[]','()','+','◼'
   ];
 
   let items = [];
 
-  function rnd(a,b){ return a + Math.random() * (b - a); }
-  function pick(arr){ return arr[(Math.random() * arr.length) | 0]; }
+  function rnd(a,b){ return a + Math.random()*(b-a); }
+  function pick(arr){ return arr[(Math.random()*arr.length)|0]; }
   function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
-  function lerp(a,b,t){ return a + (b-a) * t; }
+  function lerp(a,b,t){ return a + (b-a)*t; }
 
   class Item {
     constructor(text, x, y, size, opts = {}) {
       this.text = text;
-      this.baseX = x; this.baseY = y;
-      this.x = x; this.y = y;
+      this.baseX = x;
+      this.baseY = y;
+      this.x = x;
+      this.y = y;
+      this.baseSize = size;
       this.size = size;
       this.weight = opts.weight ?? 900;
       this.italic = opts.italic ?? true;
-      this.rot = opts.rot ?? rnd(-0.12, 0.12);
-      this.baseRot = this.rot;
       this.alpha = opts.alpha ?? 1;
       this.kind = opts.kind ?? 'dense';
       this.anchor = opts.anchor ?? false;
+      this.response = opts.response ?? 'mix'; // low, mid, high, mix
       this.scaleX = opts.scaleX ?? rnd(0.84, 1.12);
-      this.scaleY = opts.scaleY ?? rnd(0.88, 1.04);
-      this.floatAmpX = opts.floatAmpX ?? rnd(12, 28);
-      this.floatAmpY = opts.floatAmpY ?? rnd(8, 20);
-      this.floatSpeed = opts.floatSpeed ?? rnd(0.15, 0.45);
+      this.scaleY = opts.scaleY ?? rnd(0.88, 1.05);
+      this.baseRot = opts.rot ?? rnd(-0.14, 0.14);
+      this.rot = this.baseRot;
       this.phase = rnd(0, Math.PI * 2);
-      this.vx = 0; this.vy = 0; this.vr = 0;
+      this.floatAmpX = opts.floatAmpX ?? rnd(10, 24);
+      this.floatAmpY = opts.floatAmpY ?? rnd(8, 18);
+      this.floatSpeed = opts.floatSpeed ?? rnd(0.14, 0.4);
+
+      this.vx = 0;
+      this.vy = 0;
+      this.vr = 0;
+
+      this.currentScale = 1;
+      this.targetScale = 1;
+      this.bandPhase = rnd(0, Math.PI * 2);
+      this.sliceBias = opts.sliceBias ?? rnd(0.45, 1.2);
     }
-    kick(power){
-      this.vx += rnd(-1,1) * power * (this.anchor ? 14 : 8);
-      this.vy += rnd(-1,1) * power * (this.anchor ? 8 : 5);
+
+    bandValue(audio) {
+      if (this.response === 'low') return audio.low;
+      if (this.response === 'mid') return audio.mid;
+      if (this.response === 'high') return audio.high;
+      return audio.level * 0.45 + audio.low * 0.2 + audio.mid * 0.2 + audio.high * 0.15;
+    }
+
+    kick(power) {
+      this.vx += rnd(-1,1) * power * (this.anchor ? 12 : 7);
+      this.vy += rnd(-1,1) * power * (this.anchor ? 8 : 4.5);
       this.vr += rnd(-1,1) * power * 0.08;
     }
-    update(audio){
-      this.phase += 0.004 + audio.level * 0.013 + audio.high * 0.01;
+
+    update(audio) {
+      const band = this.bandValue(audio);
+      this.phase += 0.004 + audio.level * 0.015 + audio.high * 0.006;
 
       const calmX = this.baseX + Math.sin(this.phase * this.floatSpeed) * this.floatAmpX;
-      const calmY = this.baseY + Math.cos(this.phase * this.floatSpeed * 0.81) * this.floatAmpY;
+      const calmY = this.baseY + Math.cos(this.phase * this.floatSpeed * 0.82) * this.floatAmpY;
 
-      const move = 1 + audio.level * 18 + audio.low * 10;
-      const jitter = audio.pulse * (this.anchor ? 24 : 14) + audio.high * 4;
+      let moveX = 0, moveY = 0, rotPush = 0;
 
-      const targetX = calmX + Math.sin(frame * 0.03 + this.phase * 1.3) * move + rnd(-jitter, jitter);
-      const targetY = calmY + Math.cos(frame * 0.025 + this.phase * 1.1) * move + rnd(-jitter, jitter) * 0.55;
+      if (this.response === 'low') {
+        moveY += Math.sin(frame * 0.06 + this.bandPhase) * (5 + audio.low * 26);
+        moveX += Math.cos(frame * 0.03 + this.bandPhase) * (1 + audio.low * 5);
+      } else if (this.response === 'mid') {
+        moveX += Math.sin(frame * 0.08 + this.bandPhase) * (4 + audio.mid * 28);
+        moveY += Math.cos(frame * 0.035 + this.bandPhase) * (1 + audio.mid * 8);
+        rotPush += Math.sin(frame * 0.045 + this.bandPhase) * (0.02 + audio.mid * 0.18);
+      } else if (this.response === 'high') {
+        moveX += rnd(-1,1) * (1 + audio.high * 18 + audio.pulse * 8);
+        moveY += rnd(-1,1) * (1 + audio.high * 8);
+        rotPush += rnd(-1,1) * (audio.high * 0.18 + audio.pulse * 0.12);
+      } else {
+        moveX += Math.sin(frame * 0.05 + this.bandPhase) * (3 + audio.level * 20 + audio.mid * 8);
+        moveY += Math.cos(frame * 0.04 + this.bandPhase) * (3 + audio.level * 18 + audio.low * 10);
+        rotPush += Math.sin(frame * 0.03 + this.bandPhase) * (0.01 + audio.high * 0.08);
+      }
 
-      this.x += (targetX - this.x) * (0.08 + audio.level * 0.08);
-      this.y += (targetY - this.y) * (0.08 + audio.level * 0.08);
+      if (this.response === 'low') {
+        this.targetScale = 1 + audio.low * 0.55 + audio.pulse * 0.48;
+      } else if (this.response === 'mid') {
+        this.targetScale = 1 + audio.mid * 0.32 + audio.pulse * 0.26;
+      } else if (this.response === 'high') {
+        this.targetScale = 1 + audio.high * 0.18 + audio.pulse * 0.16;
+      } else {
+        this.targetScale = 1 + audio.level * 0.26 + audio.pulse * 0.34;
+      }
+
+      if (this.anchor) this.targetScale += audio.pulse * 0.14;
+      this.currentScale += (this.targetScale - this.currentScale) * (0.16 + audio.pulse * 0.08);
+
+      const targetX = calmX + moveX;
+      const targetY = calmY + moveY;
+
+      this.x += (targetX - this.x) * (0.07 + audio.level * 0.1);
+      this.y += (targetY - this.y) * (0.07 + audio.level * 0.1);
 
       this.vx *= 0.90;
       this.vy *= 0.90;
@@ -148,17 +299,24 @@
 
       this.x += this.vx;
       this.y += this.vy;
-      this.rot += this.vr;
 
-      const targetRot = this.baseRot + Math.sin(this.phase) * 0.03 + rnd(-1,1) * audio.pulse * 0.12;
-      this.rot += (targetRot - this.rot) * 0.08;
+      const desiredRot = this.baseRot + rotPush + Math.sin(this.phase) * 0.015;
+      this.rot += (desiredRot - this.rot) * 0.12 + this.vr;
     }
   }
 
-  function resize(){
+  function sizeMeterCanvas() {
+    const rect = meterCanvas.getBoundingClientRect();
+    const mdpr = Math.min(devicePixelRatio || 1, 2);
+    meterCanvas.width = Math.max(120, Math.round(rect.width * mdpr));
+    meterCanvas.height = Math.max(36, Math.round(rect.height * mdpr));
+    mctx.setTransform(mdpr, 0, 0, mdpr, 0, 0);
+  }
+
+  function resize() {
     W = innerWidth;
     H = innerHeight;
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    dpr = Math.min(devicePixelRatio || 1, 2);
 
     canvas.width = W * dpr;
     canvas.height = H * dpr;
@@ -166,112 +324,127 @@
     canvas.style.height = H + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
+    // Ajuste más robusto para pantallas de cualquier proporción
     const minSide = Math.min(W, H);
-    sceneScale = minSide > 1200 ? 0.16 : minSide > 900 ? 0.18 : 0.22;
+    const aspect = W / H;
+    if (aspect > 2) sceneScale = 0.14;
+    else if (aspect > 1.5) sceneScale = 0.16;
+    else if (minSide > 1200) sceneScale = 0.16;
+    else if (minSide > 900) sceneScale = 0.18;
+    else sceneScale = 0.22;
+
     sw = Math.max(180, Math.round(W * sceneScale));
     sh = Math.max(120, Math.round(H * sceneScale));
     scene.width = sw;
     scene.height = sh;
 
+    sizeMeterCanvas();
     buildComposition();
   }
 
-  function buildComposition(){
+  function buildComposition() {
     items = [];
 
-    const calmCount = Math.max(5, Math.min(9, Math.round(W / 280)));
+    const calmCount = Math.max(5, Math.min(8, Math.round(W / 320)));
     for (let i = 0; i < calmCount; i++) {
       items.push(new Item(
         pick(calmWords),
-        rnd(W * 0.12, W * 0.88),
-        rnd(H * 0.16, H * 0.86),
-        rnd(18, Math.min(48, W * 0.038)),
+        rnd(W * 0.14, W * 0.86),
+        rnd(H * 0.18, H * 0.84),
+        rnd(18, Math.min(44, W * 0.036)),
         {
           kind: 'calm',
-          weight: Math.random() < 0.45 ? 400 : 700,
+          weight: Math.random() < 0.5 ? 400 : 700,
           italic: Math.random() < 0.8,
-          alpha: rnd(0.42, 0.8),
+          alpha: rnd(0.35, 0.8),
           rot: rnd(-0.05, 0.05),
-          scaleX: rnd(0.96, 1.05),
+          response: pick(['low','mid','high','mix']),
+          scaleX: rnd(0.95, 1.05),
           scaleY: rnd(0.96, 1.03),
-          floatAmpX: rnd(16, 34),
-          floatAmpY: rnd(10, 26),
-          floatSpeed: rnd(0.18, 0.42)
+          floatAmpX: rnd(12, 28),
+          floatAmpY: rnd(10, 22),
+          floatSpeed: rnd(0.18, 0.38),
+          sliceBias: rnd(0.3, 0.65)
         }
       ));
     }
 
     const anchors = [
-      ['SONIDO', W * 0.24, H * 0.22, Math.min(W,H) * 0.24, -0.08],
-      ['RUIDO',  W * 0.66, H * 0.28, Math.min(W,H) * 0.21,  0.08],
-      ['CARIÑO', W * 0.32, H * 0.54, Math.min(W,H) * 0.24, -0.04],
-      ['ECO',    W * 0.71, H * 0.74, Math.min(W,H) * 0.25, -0.06],
-      ['PULSO',  W * 0.18, H * 0.84, Math.min(W,H) * 0.16,  0.03],
+      ['SONIDO', W * 0.24, H * 0.22, Math.min(W,H) * 0.24, -0.08, 'low'],
+      ['RUIDO',  W * 0.68, H * 0.30, Math.min(W,H) * 0.20,  0.08, 'mid'],
+      ['CARIÑO', W * 0.34, H * 0.55, Math.min(W,H) * 0.23, -0.04, 'low'],
+      ['ECO',    W * 0.70, H * 0.76, Math.min(W,H) * 0.24, -0.07, 'high'],
+      ['PULSO',  W * 0.18, H * 0.84, Math.min(W,H) * 0.16,  0.03, 'mix'],
     ];
 
-    for (const [t,x,y,s,r] of anchors){
+    for (const [t,x,y,s,r,resp] of anchors) {
       items.push(new Item(t, x, y, s, {
         kind: 'dense',
         weight: 900,
         italic: true,
         alpha: 1,
         rot: r,
-        scaleX: rnd(0.84, 1.1),
+        response: resp,
+        anchor: true,
+        scaleX: rnd(0.84, 1.10),
         scaleY: rnd(0.90, 1.04),
-        floatAmpX: rnd(8, 22),
-        floatAmpY: rnd(8, 18),
-        floatSpeed: rnd(0.12, 0.28),
-        anchor: true
+        floatAmpX: rnd(8, 18),
+        floatAmpY: rnd(8, 16),
+        floatSpeed: rnd(0.12, 0.24),
+        sliceBias: rnd(0.8, 1.2)
       }));
     }
 
-    const extraCount = Math.max(10, Math.min(20, Math.round(W / 110)));
+    const extraCount = Math.max(10, Math.min(18, Math.round(W / 120)));
+    const responses = ['low','mid','high','mix'];
     for (let i = 0; i < extraCount; i++) {
+      const resp = responses[i % responses.length];
       items.push(new Item(
         pick(denseWords),
-        rnd(-W * 0.05, W * 1.02),
-        rnd(H * 0.04, H * 0.98),
-        rnd(Math.min(W,H) * 0.08, Math.min(W,H) * 0.18),
+        rnd(-W * 0.04, W * 1.02),
+        rnd(H * 0.05, H * 0.97),
+        rnd(Math.min(W,H) * 0.08, Math.min(W,H) * 0.17),
         {
           kind: 'dense',
-          weight: Math.random() < 0.84 ? 900 : 700,
+          weight: Math.random() < 0.82 ? 900 : 700,
           italic: true,
-          alpha: rnd(0.72, 1),
+          alpha: rnd(0.7, 1),
           rot: rnd(-0.18, 0.18),
+          response: resp,
+          anchor: Math.random() < 0.18,
           scaleX: rnd(0.82, 1.18),
           scaleY: rnd(0.88, 1.08),
-          floatAmpX: rnd(10, 26),
-          floatAmpY: rnd(8, 20),
-          floatSpeed: rnd(0.16, 0.36),
-          anchor: Math.random() < 0.18
+          floatAmpX: rnd(10, 24),
+          floatAmpY: rnd(8, 18),
+          floatSpeed: rnd(0.16, 0.34),
+          sliceBias: rnd(0.45, 1.1)
         }
       ));
     }
   }
 
-  function drawTextGlitch(item, audio){
+  function drawWord(item, audio) {
+    const size = Math.max(8, item.baseSize * item.currentScale * sceneScale);
     const x = item.x * sceneScale;
     const y = item.y * sceneScale;
-    const size = Math.max(8, item.size * sceneScale);
 
-    const w = Math.max(80, Math.ceil(size * (item.text.length * 0.85 + 2.4) * 1.6));
-    const h = Math.max(36, Math.ceil(size * 2.2));
-    textBuf.width = w;
-    textBuf.height = h;
+    const textW = Math.max(80, Math.ceil(size * (item.text.length * 0.86 + 2.3) * 1.5));
+    const textH = Math.max(34, Math.ceil(size * 2.15));
+    textBuf.width = textW;
+    textBuf.height = textH;
 
-    tctx.setTransform(1, 0, 0, 1, 0, 0);
-    tctx.clearRect(0, 0, w, h);
-    tctx.translate(w / 2, h / 2);
+    tctx.setTransform(1,0,0,1,0,0);
+    tctx.clearRect(0,0,textW,textH);
+    tctx.translate(textW / 2, textH / 2);
     tctx.scale(item.scaleX, item.scaleY);
-    tctx.fillStyle = '#000';
     tctx.textAlign = 'center';
     tctx.textBaseline = 'middle';
+    tctx.fillStyle = '#000';
     tctx.font = `${item.italic ? 'italic ' : ''}${item.weight} ${size}px Georgia, "Times New Roman", serif`;
     tctx.fillText(item.text, 0, 0);
 
-    // eco tipográfico para mayor densidad
-    const echoAlpha = clamp(0.08 + audio.level * 0.12 + audio.pulse * 0.18, 0.06, 0.22);
-    tctx.globalAlpha = echoAlpha;
+    const ghost = clamp(0.08 + audio.level * 0.1 + audio.pulse * 0.14, 0.06, 0.20);
+    tctx.globalAlpha = ghost;
     tctx.fillText(item.text, -size * 0.05, 0);
     tctx.fillText(item.text,  size * 0.05, 0);
     tctx.globalAlpha = 1;
@@ -280,33 +453,53 @@
     sctx.translate(x, y);
     sctx.rotate(item.rot);
 
-    const intensity = clamp(audio.level * 0.8 + audio.pulse * 1.1 + audio.high * 0.4, 0, 1);
+    const band = item.bandValue(audio);
+    const intensity = clamp(audio.level * 0.55 + audio.pulse * 0.85 + band * 0.5, 0, 1);
     const baseSlice = Math.max(1, Math.floor(size * 0.08));
-    const amp = intensity * (size * 0.7 + 10);
+    const amp = intensity * (6 + size * 0.55) * item.sliceBias;
+    const dxGlobal = item.response === 'mid'
+      ? Math.sin(frame * 0.08 + item.phase) * amp * 0.22
+      : 0;
 
-    if (intensity < 0.05) {
+    if (intensity < 0.045) {
       sctx.globalAlpha = item.alpha;
-      sctx.drawImage(textBuf, -w/2, -h/2);
+      sctx.drawImage(textBuf, -textW/2, -textH/2);
       sctx.restore();
       return;
     }
 
     let yy = 0;
-    while (yy < h) {
+    while (yy < textH) {
       const shh = Math.max(1, Math.floor(rnd(baseSlice * 0.7, baseSlice * 1.9)));
       const step = Math.floor(yy / Math.max(1, baseSlice));
-      const dx = Math.sin(step * 0.75 + frame * 0.03 + item.phase) * amp
-               + (Math.random() - 0.5) * amp * 0.8;
+
+      let dx = dxGlobal;
+
+      if (item.response === 'low') {
+        dx += Math.sin(step * 0.7 + frame * 0.03 + item.phase) * amp * 0.45;
+      } else if (item.response === 'mid') {
+        dx += Math.sin(step * 1.1 + frame * 0.055 + item.phase) * amp * 0.85;
+      } else if (item.response === 'high') {
+        dx += (Math.random() - 0.5) * amp * 1.25;
+      } else {
+        dx += Math.sin(step * 0.8 + frame * 0.04 + item.phase) * amp * 0.7
+           + (Math.random() - 0.5) * amp * 0.35;
+      }
 
       sctx.globalAlpha = item.alpha;
-      sctx.drawImage(textBuf, 0, yy, w, shh, -w/2 + dx, -h/2 + yy, w, shh);
+      sctx.drawImage(textBuf, 0, yy, textW, shh, -textW/2 + dx, -textH/2 + yy, textW, shh);
 
-      if (audio.pulse > 0.05 && Math.random() < 0.75) {
-        const copies = Math.min(6, Math.floor(1 + audio.pulse * 8));
+      if (audio.pulse > 0.035 && Math.random() < 0.76) {
+        const copies = Math.min(7, Math.floor(1 + audio.pulse * 10 + band * 4));
         for (let c = 1; c <= copies; c++) {
-          const stepOff = c * Math.max(1, Math.floor(size * 0.05));
-          sctx.globalAlpha = clamp(0.12 - c * 0.016 + audio.pulse * 0.08, 0.02, 0.12);
-          sctx.drawImage(textBuf, 0, yy, w, shh, -w/2 + dx - stepOff, -h/2 + yy + c * 0.35, w, shh);
+          const stepOff = c * Math.max(1, Math.floor(size * 0.045));
+          sctx.globalAlpha = clamp(0.12 - c * 0.016 + audio.pulse * 0.07, 0.02, 0.12);
+          sctx.drawImage(
+            textBuf, 0, yy, textW, shh,
+            -textW/2 + dx - stepOff,
+            -textH/2 + yy + c * 0.35,
+            textW, shh
+          );
         }
       }
       yy += shh;
@@ -316,39 +509,118 @@
     sctx.restore();
   }
 
-  function renderScene(audio){
+  function getAudio() {
+    if (!analyser || !freqData || !timeData) {
+      pulse *= 0.88;
+      smoothLevel *= 0.92;
+      lowEnergy *= 0.90;
+      midEnergy *= 0.90;
+      highEnergy *= 0.90;
+      return { level: smoothLevel, low: lowEnergy, mid: midEnergy, high: highEnergy, pulse };
+    }
+
+    analyser.getByteFrequencyData(freqData);
+    analyser.getByteTimeDomainData(timeData);
+
+    const n = freqData.length;
+    const lowEnd = Math.floor(n * 0.10);
+    const midEnd = Math.floor(n * 0.32);
+    const highEnd = Math.floor(n * 0.70);
+
+    let low = 0, mid = 0, high = 0, all = 0;
+    for (let i = 0; i < n; i++) {
+      const v = freqData[i] / 255;
+      all += v;
+      if (i < lowEnd) low += v;
+      else if (i < midEnd) mid += v;
+      else if (i < highEnd) high += v;
+    }
+
+    low /= Math.max(1, lowEnd);
+    mid /= Math.max(1, midEnd - lowEnd);
+    high /= Math.max(1, highEnd - midEnd);
+    all /= n;
+
+    let sum = 0;
+    for (let i = 0; i < timeData.length; i++) {
+      const v = (timeData[i] - 128) / 128;
+      sum += v * v;
+    }
+    const rms = Math.sqrt(sum / timeData.length);
+
+    // más sensibilidad a sonidos bajos/medios
+    const level = clamp((all * 0.85 + rms * 1.85) * SENSITIVITY, 0, 1);
+
+    if (!prevFreq) prevFreq = new Float32Array(n);
+    let flux = 0;
+    for (let i = 0; i < n; i++) {
+      const curr = freqData[i] / 255;
+      const diff = curr - prevFreq[i];
+      if (diff > 0) flux += diff;
+      prevFreq[i] = curr;
+    }
+    flux /= n;
+    fluxAvg = lerp(fluxAvg, flux, 0.1);
+
+    const onset = flux > (fluxAvg * 1.42 + ONSET_BIAS);
+    pulse *= 0.86;
+
+    if (onset) {
+      const power = clamp(flux * 10 + low * 0.7 + mid * 0.5 + 0.12, 0, 1);
+      pulse = Math.max(pulse, power);
+
+      items.forEach(item => {
+        const band = item.bandValue({ level, low, mid, high, pulse });
+        if (Math.random() < (item.anchor ? 0.92 : 0.55 + band * 0.25)) {
+          item.kick(0.25 + power * 0.9 + band * 0.25);
+        }
+      });
+    }
+
+    smoothLevel += (level - smoothLevel) * (level > smoothLevel ? 0.28 : 0.10);
+    lowEnergy += (low * SENSITIVITY - lowEnergy) * 0.20;
+    midEnergy += (mid * SENSITIVITY - midEnergy) * 0.20;
+    highEnergy += (high * SENSITIVITY - highEnergy) * 0.22;
+
+    return {
+      level: clamp(smoothLevel, 0, 1),
+      low: clamp(lowEnergy, 0, 1),
+      mid: clamp(midEnergy, 0, 1),
+      high: clamp(highEnergy, 0, 1),
+      pulse: clamp(pulse, 0, 1)
+    };
+  }
+
+  function renderScene(audio) {
     sctx.setTransform(1,0,0,1,0,0);
     sctx.clearRect(0,0,sw,sh);
     sctx.fillStyle = '#fff';
     sctx.fillRect(0,0,sw,sh);
 
-    const calmOpacity = clamp(1 - audio.level * 1.35 - audio.pulse * 1.8, 0.08, 1);
-    const denseOpacity = clamp(audio.level * 1.25 + audio.pulse * 1.5 + 0.08, 0.06, 1);
+    const calmOpacity = clamp(1 - audio.level * 1.25 - audio.pulse * 1.6, 0.08, 1);
+    const denseOpacity = clamp(audio.level * 1.18 + audio.pulse * 1.42 + 0.06, 0.05, 1);
 
     for (const item of items) {
       item.update(audio);
-
       sctx.save();
       if (item.kind === 'calm') sctx.globalAlpha *= calmOpacity;
       else sctx.globalAlpha *= denseOpacity;
-      drawTextGlitch(item, audio);
+      drawWord(item, audio);
       sctx.restore();
     }
 
-    // barras y ruido gráfico
-    const barCount = Math.floor(2 + audio.high * 12 + audio.pulse * 14);
+    const barCount = Math.floor(2 + audio.high * 12 + audio.pulse * 18);
     sctx.save();
-    sctx.globalAlpha = clamp(audio.high * 0.18 + audio.pulse * 0.12, 0, 0.22);
+    sctx.globalAlpha = clamp(audio.high * 0.16 + audio.pulse * 0.11, 0, 0.22);
     sctx.fillStyle = '#000';
     for (let i = 0; i < barCount; i++) {
-      sctx.fillRect(rnd(0, sw), rnd(0, sh), rnd(sw * 0.04, sw * 0.32), rnd(1, 3));
+      sctx.fillRect(rnd(0, sw), rnd(0, sh), rnd(sw * 0.04, sw * 0.30), rnd(1, 3));
     }
     sctx.restore();
 
-    // glitch de pantalla por slices
-    if (audio.pulse > 0.05 || audio.level > 0.1) {
-      const sliceCount = Math.floor(2 + audio.pulse * 14 + audio.high * 8);
-      const amp = Math.floor(2 + audio.pulse * 18 + audio.level * 8);
+    if (audio.pulse > 0.035 || audio.high > 0.08) {
+      const sliceCount = Math.floor(2 + audio.pulse * 16 + audio.high * 10);
+      const amp = Math.floor(2 + audio.pulse * 20 + audio.high * 8);
       for (let i = 0; i < sliceCount; i++) {
         const y = Math.floor(rnd(0, sh));
         const hh = Math.max(1, Math.floor(rnd(1, Math.max(2, 4 + audio.pulse * 10))));
@@ -360,130 +632,92 @@
       }
     }
 
-    // threshold + ruido
     const img = sctx.getImageData(0, 0, sw, sh);
     const px = img.data;
-    const thresh = Math.floor(210 - audio.level * 42 - audio.pulse * 55); // más threshold cuando suena
-    const noiseAmt = 18 + audio.level * 24 + audio.pulse * 34;
+    const thresh = Math.floor(214 - audio.level * 42 - audio.pulse * 58 - audio.high * 16);
+    const noiseAmt = 16 + audio.level * 18 + audio.pulse * 30 + audio.high * 12;
 
     for (let i = 0; i < px.length; i += 4) {
       const lum = 0.2126 * px[i] + 0.7152 * px[i+1] + 0.0722 * px[i+2];
       const n = (Math.random() - 0.5) * noiseAmt;
-      const v = (lum + n > thresh) ? 255 : 0;
+      let v = (lum + n > thresh) ? 255 : 0;
 
-      // puntitos sueltos adicionales, como threshold roto
-      let vv = v;
-      if (Math.random() < 0.006 + audio.pulse * 0.015) {
-        vv = vv === 255 ? 0 : 255;
+      if (Math.random() < 0.004 + audio.pulse * 0.018 + audio.high * 0.01) {
+        v = (v === 255 ? 0 : 255);
       }
 
-      px[i] = vv;
-      px[i+1] = vv;
-      px[i+2] = vv;
-      px[i+3] = 255;
+      px[i] = v; px[i+1] = v; px[i+2] = v; px[i+3] = 255;
     }
     sctx.putImageData(img, 0, 0);
 
-    // scanlines pixeladas
     sctx.save();
     sctx.globalAlpha = clamp(0.04 + audio.high * 0.05 + audio.pulse * 0.04, 0.03, 0.12);
     sctx.fillStyle = '#000';
-    for (let y = (frame % 3); y < sh; y += 3) {
-      sctx.fillRect(0, y, sw, 1);
-    }
+    for (let y = (frame % 3); y < sh; y += 3) sctx.fillRect(0, y, sw, 1);
     sctx.restore();
   }
 
-  function presentScene(audio){
+  function presentScene(audio) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.imageSmoothingEnabled = false;
-    ctx.clearRect(0, 0, W, H);
+    ctx.clearRect(0,0,W,H);
     ctx.fillStyle = '#fff';
-    ctx.fillRect(0, 0, W, H);
+    ctx.fillRect(0,0,W,H);
 
-    // pasada principal
     ctx.drawImage(scene, 0, 0, W, H);
 
-    // ghost glitch adicional en los beats
-    if (audio.pulse > 0.06) {
+    if (audio.pulse > 0.05) {
       ctx.save();
       ctx.imageSmoothingEnabled = false;
       ctx.globalAlpha = clamp(audio.pulse * 0.18, 0.04, 0.18);
-      const dx = Math.floor(rnd(-18, 18));
-      const dy = Math.floor(rnd(-4, 4));
-      ctx.drawImage(scene, dx, dy, W, H);
+      ctx.drawImage(scene, Math.floor(rnd(-20, 20)), Math.floor(rnd(-4, 4)), W, H);
       ctx.restore();
     }
   }
 
-  function getAudio(){
-    if (!analyser || !freqData || !timeData) {
-      pulse *= 0.88;
-      return { level: 0, low: 0, high: 0, pulse, calm: true };
+  function drawMeter(audio) {
+    const rect = meterCanvas.getBoundingClientRect();
+    const w = rect.width;
+    const h = rect.height;
+
+    mctx.setTransform((meterCanvas.width / w), 0, 0, (meterCanvas.height / h), 0, 0);
+    mctx.clearRect(0, 0, w, h);
+    mctx.fillStyle = '#fff';
+    mctx.fillRect(0, 0, w, h);
+
+    const bars = 24;
+    const gap = 2;
+    const barW = (w - gap * (bars - 1)) / bars;
+    const data = freqData;
+
+    for (let i = 0; i < bars; i++) {
+      let v = 0;
+      if (data && analyser) {
+        const start = Math.floor((i / bars) * data.length);
+        const end = Math.max(start + 1, Math.floor(((i + 1) / bars) * data.length));
+        for (let j = start; j < end; j++) v += data[j] / 255;
+        v /= (end - start);
+        v = clamp(v * 1.35, 0, 1);
+      }
+
+      const barH = Math.max(2, v * h);
+      const x = i * (barW + gap);
+      const y = h - barH;
+
+      mctx.fillStyle = '#000';
+      mctx.fillRect(x, y, Math.max(1, barW), barH);
     }
 
-    analyser.getByteFrequencyData(freqData);
-    analyser.getByteTimeDomainData(timeData);
+    // línea de pulso general
+    mctx.fillStyle = '#000';
+    mctx.fillRect(0, h - 2, w * audio.level, 2);
 
-    let low = 0, high = 0, all = 0;
-    const n = freqData.length;
-    const lowEnd = Math.floor(n * 0.10);
-    const highStart = Math.floor(n * 0.28);
-
-    for (let i = 0; i < n; i++) {
-      const v = freqData[i] / 255;
-      all += v;
-      if (i < lowEnd) low += v;
-      if (i >= highStart) high += v;
-    }
-    low /= Math.max(1, lowEnd);
-    high /= Math.max(1, n - highStart);
-    all /= n;
-
-    let sum = 0;
-    for (let i = 0; i < timeData.length; i++) {
-      const v = (timeData[i] - 128) / 128;
-      sum += v * v;
-    }
-    const rms = Math.sqrt(sum / timeData.length);
-    const level = clamp(all * 0.7 + rms * 1.7, 0, 1);
-
-    if (!prevFreq) prevFreq = new Float32Array(n);
-    let flux = 0;
-    for (let i = 0; i < n; i++) {
-      const curr = freqData[i] / 255;
-      const diff = curr - prevFreq[i];
-      if (diff > 0) flux += diff;
-      prevFreq[i] = curr;
-    }
-    flux /= n;
-    fluxAvg = lerp(fluxAvg, flux, 0.12);
-
-    const onset = flux > fluxAvg * 1.55 + 0.012;
-    pulse *= 0.86;
-
-    if (onset) {
-      const power = clamp(flux * 9 + low * 0.8 + 0.12, 0, 1);
-      pulse = Math.max(pulse, power);
-      items.forEach(it => {
-        if (Math.random() < (it.anchor ? 0.92 : 0.55)) it.kick(0.35 + power * 0.9);
-      });
-    }
-
-    smoothLevel += (level - smoothLevel) * (level > smoothLevel ? 0.24 : 0.08);
-    lowEnergy += (low - lowEnergy) * 0.18;
-    highEnergy += (high - highEnergy) * 0.18;
-
-    return {
-      level: smoothLevel,
-      low: lowEnergy,
-      high: highEnergy,
-      pulse: clamp(pulse, 0, 1),
-      calm: smoothLevel < 0.05 && pulse < 0.04
-    };
+    const pct = Math.round(audio.level * 100);
+    levelFill.style.width = pct + '%';
+    levelText.textContent = pct + '%';
   }
 
-  async function enableMic(){
+  async function enableMic() {
     audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
     if (audioCtx.state === 'suspended') await audioCtx.resume();
 
@@ -497,7 +731,7 @@
 
     analyser = audioCtx.createAnalyser();
     analyser.fftSize = 2048;
-    analyser.smoothingTimeConstant = 0.12;
+    analyser.smoothingTimeConstant = 0.10;
 
     freqData = new Uint8Array(analyser.frequencyBinCount);
     timeData = new Uint8Array(analyser.fftSize);
@@ -508,7 +742,7 @@
     micActive = true;
   }
 
-  function disableMic(){
+  function disableMic() {
     if (stream) {
       stream.getTracks().forEach(t => t.stop());
       stream = null;
@@ -520,12 +754,15 @@
     micActive = false;
     smoothLevel = 0;
     lowEnergy = 0;
+    midEnergy = 0;
     highEnergy = 0;
     pulse = 0;
     fluxAvg = 0;
+    levelFill.style.width = '0%';
+    levelText.textContent = '0%';
   }
 
-  async function toggleMic(){
+  async function toggleMic() {
     try {
       if (!micActive) await enableMic();
       else disableMic();
@@ -535,11 +772,12 @@
     }
   }
 
-  function render(){
+  function render() {
     frame++;
     const audio = getAudio();
     renderScene(audio);
     presentScene(audio);
+    drawMeter(audio);
     requestAnimationFrame(render);
   }
 
