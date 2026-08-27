@@ -184,6 +184,13 @@
   let pulse = 0;
   let fluxAvg = 0;
   let frame = 0;
+  let redGlitch = 0;
+  let lastRedGlitch = 0;
+
+  // Mutación lenta durante el silencio
+  let silenceStartedAt = performance.now();
+  let lastSilenceMutation = 0;
+  let nextSilenceMutation = 1700;
 
   const SENSITIVITY = 1.35;   // mayor sensibilidad general
   const ONSET_BIAS = 0.009;   // menor umbral para ataques
@@ -274,18 +281,31 @@
         rotPush += Math.sin(frame * 0.03 + this.bandPhase) * (0.01 + audio.high * 0.08);
       }
 
+      // ESCALA REACTIVA:
+      // casi silencio = pequeño / golpes = crecimiento brusco.
+      const quietBase = this.kind === 'calm' ? 0.48 : 0.38;
+      const levelGrowth = audio.level * (this.anchor ? 0.95 : 0.72);
+      const beatGrowth = audio.pulse * (this.anchor ? 1.35 : 0.95);
+
       if (this.response === 'low') {
-        this.targetScale = 1 + audio.low * 0.55 + audio.pulse * 0.48;
+        this.targetScale = quietBase + levelGrowth + audio.low * 0.72 + beatGrowth;
       } else if (this.response === 'mid') {
-        this.targetScale = 1 + audio.mid * 0.32 + audio.pulse * 0.26;
+        this.targetScale = quietBase + levelGrowth + audio.mid * 0.52 + beatGrowth * 0.82;
       } else if (this.response === 'high') {
-        this.targetScale = 1 + audio.high * 0.18 + audio.pulse * 0.16;
+        this.targetScale = quietBase + levelGrowth * 0.72 + audio.high * 0.36 + beatGrowth * 0.68;
       } else {
-        this.targetScale = 1 + audio.level * 0.26 + audio.pulse * 0.34;
+        this.targetScale = quietBase + levelGrowth + beatGrowth;
       }
 
-      if (this.anchor) this.targetScale += audio.pulse * 0.14;
-      this.currentScale += (this.targetScale - this.currentScale) * (0.16 + audio.pulse * 0.08);
+      // En un golpe fuerte algunas palabras pueden llegar a más del doble.
+      this.targetScale = clamp(this.targetScale, 0.34, this.anchor ? 2.7 : 2.15);
+
+      // Ataque rápido al crecer, relajación más lenta al volver a pequeño.
+      const scaleEase = this.targetScale > this.currentScale
+        ? 0.30 + audio.pulse * 0.22
+        : 0.075;
+
+      this.currentScale += (this.targetScale - this.currentScale) * scaleEase;
 
       const targetX = calmX + moveX;
       const targetY = calmY + moveY;
@@ -349,8 +369,8 @@
     for (let i = 0; i < calmCount; i++) {
       items.push(new Item(
         pick(calmWords),
-        rnd(W * 0.14, W * 0.86),
-        rnd(H * 0.18, H * 0.84),
+        rnd(W * 0.24, W * 0.76),
+        rnd(H * 0.24, H * 0.76),
         rnd(18, Math.min(44, W * 0.036)),
         {
           kind: 'calm',
@@ -367,14 +387,16 @@
           sliceBias: rnd(0.3, 0.65)
         }
       ));
+      items[items.length - 1].currentScale = rnd(0.42, 0.56);
+      items[items.length - 1].targetScale = items[items.length - 1].currentScale;
     }
 
     const anchors = [
-      ['SONIDO', W * 0.24, H * 0.22, Math.min(W,H) * 0.24, -0.08, 'low'],
-      ['RUIDO',  W * 0.68, H * 0.30, Math.min(W,H) * 0.20,  0.08, 'mid'],
-      ['CARIÑO', W * 0.34, H * 0.55, Math.min(W,H) * 0.23, -0.04, 'low'],
-      ['ECO',    W * 0.70, H * 0.76, Math.min(W,H) * 0.24, -0.07, 'high'],
-      ['PULSO',  W * 0.18, H * 0.84, Math.min(W,H) * 0.16,  0.03, 'mix'],
+      ['SONIDO', W * 0.34, H * 0.28, Math.min(W,H) * 0.24, -0.08, 'low'],
+      ['RUIDO',  W * 0.62, H * 0.34, Math.min(W,H) * 0.20,  0.08, 'mid'],
+      ['CARIÑO', W * 0.42, H * 0.53, Math.min(W,H) * 0.23, -0.04, 'low'],
+      ['ECO',    W * 0.62, H * 0.67, Math.min(W,H) * 0.24, -0.07, 'high'],
+      ['PULSO',  W * 0.34, H * 0.70, Math.min(W,H) * 0.16,  0.03, 'mix'],
     ];
 
     for (const [t,x,y,s,r,resp] of anchors) {
@@ -401,8 +423,8 @@
       const resp = responses[i % responses.length];
       items.push(new Item(
         pick(denseWords),
-        rnd(-W * 0.04, W * 1.02),
-        rnd(H * 0.05, H * 0.97),
+        rnd(W * 0.14, W * 0.86),
+        rnd(H * 0.14, H * 0.86),
         rnd(Math.min(W,H) * 0.08, Math.min(W,H) * 0.17),
         {
           kind: 'dense',
@@ -516,7 +538,8 @@
       lowEnergy *= 0.90;
       midEnergy *= 0.90;
       highEnergy *= 0.90;
-      return { level: smoothLevel, low: lowEnergy, mid: midEnergy, high: highEnergy, pulse };
+      redGlitch *= 0.84;
+      return { level: smoothLevel, low: lowEnergy, mid: midEnergy, high: highEnergy, pulse, red: redGlitch };
     }
 
     analyser.getByteFrequencyData(freqData);
@@ -582,13 +605,97 @@
     midEnergy += (mid * SENSITIVITY - midEnergy) * 0.20;
     highEnergy += (high * SENSITIVITY - highEnergy) * 0.22;
 
+    const now = performance.now();
+
+    // Glitch rojo: aparece especialmente con agudos fuertes y ataques secos.
+    if (
+      now - lastRedGlitch > 120 &&
+      (
+        highEnergy > 0.13 ||
+        (onset && high > 0.08) ||
+        (pulse > 0.30 && highEnergy > 0.07)
+      )
+    ) {
+      redGlitch = clamp(
+        Math.max(redGlitch, highEnergy * 1.35 + pulse * 0.55),
+        0,
+        1
+      );
+      lastRedGlitch = now;
+    }
+
+    redGlitch *= 0.84;
+
     return {
       level: clamp(smoothLevel, 0, 1),
       low: clamp(lowEnergy, 0, 1),
       mid: clamp(midEnergy, 0, 1),
       high: clamp(highEnergy, 0, 1),
-      pulse: clamp(pulse, 0, 1)
+      pulse: clamp(pulse, 0, 1),
+      red: clamp(redGlitch, 0, 1)
     };
+  }
+
+
+  function mutateQuietItem(item) {
+    const oldText = item.text;
+
+    // Palabras y símbolos van cambiando, pero de manera pausada.
+    if (item.kind === 'calm') {
+      let next = pick(calmWords);
+      if (Math.random() < 0.18) next = pick(['eco','onda','pulso','aire','señal','afecto','ruido']);
+      if (next === oldText) next = pick(calmWords);
+      item.text = next;
+    } else if (Math.random() < 0.22) {
+      item.text = pick(denseWords);
+    }
+
+    // La composición también muta lentamente en silencio.
+    item.baseX = clamp(item.baseX + rnd(-W * 0.08, W * 0.08), W * 0.18, W * 0.82);
+    item.baseY = clamp(item.baseY + rnd(-H * 0.07, H * 0.07), H * 0.18, H * 0.82);
+    item.baseRot = clamp(item.baseRot + rnd(-0.12, 0.12), -0.28, 0.28);
+    item.scaleX = clamp(item.scaleX + rnd(-0.12, 0.12), 0.76, 1.26);
+    item.scaleY = clamp(item.scaleY + rnd(-0.08, 0.08), 0.82, 1.14);
+    item.floatAmpX = rnd(12, 38);
+    item.floatAmpY = rnd(8, 30);
+    item.floatSpeed = rnd(0.13, 0.42);
+    item.phase += rnd(-1.2, 1.2);
+  }
+
+  function updateSilenceMutation(audio) {
+    const now = performance.now();
+    const isQuiet = audio.level < 0.045 && audio.pulse < 0.035;
+
+    if (!isQuiet) {
+      silenceStartedAt = now;
+      return;
+    }
+
+    // Espera un pequeño momento antes de empezar a mutar.
+    if (now - silenceStartedAt < 900) return;
+
+    if (now - lastSilenceMutation >= nextSilenceMutation) {
+      lastSilenceMutation = now;
+      nextSilenceMutation = rnd(1300, 3200);
+
+      const quietItems = items.filter(item => item.kind === 'calm');
+      const changes = Math.min(
+        quietItems.length,
+        Math.random() < 0.35 ? 2 : 1
+      );
+
+      for (let i = 0; i < changes; i++) {
+        const item = pick(quietItems);
+        if (item) mutateQuietItem(item);
+      }
+
+      // Muy ocasionalmente muta un elemento grande que todavía está casi oculto.
+      if (Math.random() < 0.18) {
+        const dense = items.filter(item => item.kind === 'dense');
+        const item = pick(dense);
+        if (item) mutateQuietItem(item);
+      }
+    }
   }
 
   function renderScene(audio) {
@@ -597,8 +704,8 @@
     sctx.fillStyle = '#fff';
     sctx.fillRect(0,0,sw,sh);
 
-    const calmOpacity = clamp(1 - audio.level * 1.25 - audio.pulse * 1.6, 0.08, 1);
-    const denseOpacity = clamp(audio.level * 1.18 + audio.pulse * 1.42 + 0.06, 0.05, 1);
+    const calmOpacity = clamp(1 - audio.level * 1.05 - audio.pulse * 1.45, 0.14, 1);
+    const denseOpacity = clamp(audio.level * 1.42 + audio.pulse * 1.65, 0, 1);
 
     for (const item of items) {
       item.update(audio);
@@ -657,6 +764,79 @@
     sctx.restore();
   }
 
+
+  function drawRedGlitch(audio) {
+    if (!audio.red || audio.red < 0.025) return;
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.imageSmoothingEnabled = false;
+
+    // Copias cromáticas horizontales, breves y agresivas.
+    const slices = Math.floor(2 + audio.red * 10);
+    for (let i = 0; i < slices; i++) {
+      const y = rnd(H * 0.12, H * 0.88);
+      const h = rnd(3, 28 + audio.red * 45);
+      const dx = rnd(-1, 1) * (8 + audio.red * 42);
+
+      ctx.globalAlpha = clamp(0.08 + audio.red * 0.20, 0.08, 0.28);
+      ctx.fillStyle = '#ff0000';
+      ctx.fillRect(
+        rnd(W * 0.12, W * 0.72),
+        y,
+        rnd(W * 0.08, W * 0.30),
+        Math.max(1, h * 0.18)
+      );
+
+      // Reutiliza una franja de la escena como desplazamiento rojo.
+      try {
+        const sy = Math.floor(y * dpr);
+        const sh = Math.max(1, Math.floor(h * dpr));
+        const strip = ctx.getImageData(0, sy, canvas.width, sh);
+
+        // Tinta roja sobre píxeles oscuros
+        const p = strip.data;
+        for (let k = 0; k < p.length; k += 4) {
+          const lum = (p[k] + p[k+1] + p[k+2]) / 3;
+          if (lum < 170) {
+            p[k] = 255;
+            p[k+1] = 0;
+            p[k+2] = 0;
+            p[k+3] = Math.max(p[k+3], 180);
+          } else {
+            p[k+3] = 0;
+          }
+        }
+
+        ctx.putImageData(strip, Math.floor(dx * dpr), sy);
+      } catch(e) {}
+    }
+
+    // Destellos de símbolos rojos cerca del centro.
+    if (audio.red > 0.18) {
+      const marks = Math.floor(1 + audio.red * 5);
+      ctx.globalAlpha = clamp(0.20 + audio.red * 0.35, 0.2, 0.5);
+      ctx.fillStyle = '#ff0000';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      for (let i = 0; i < marks; i++) {
+        const size = rnd(Math.min(W,H) * 0.035, Math.min(W,H) * 0.12);
+        ctx.font = `900 italic ${size}px Georgia, "Times New Roman", serif`;
+        ctx.save();
+        ctx.translate(
+          rnd(W * 0.28, W * 0.72),
+          rnd(H * 0.26, H * 0.74)
+        );
+        ctx.rotate(rnd(-0.18, 0.18));
+        ctx.fillText(pick(['RUIDO','ECO','////','†','×','PULSO']), 0, 0);
+        ctx.restore();
+      }
+    }
+
+    ctx.restore();
+  }
+
   function presentScene(audio) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.imageSmoothingEnabled = false;
@@ -673,6 +853,8 @@
       ctx.drawImage(scene, Math.floor(rnd(-20, 20)), Math.floor(rnd(-4, 4)), W, H);
       ctx.restore();
     }
+
+    drawRedGlitch(audio);
   }
 
   function drawMeter(audio) {
@@ -712,7 +894,9 @@
     mctx.fillStyle = '#000';
     mctx.fillRect(0, h - 2, w * audio.level, 2);
 
-    const pct = Math.round(audio.level * 100);
+    // Curva perceptual para que también se vea claramente el sonido suave.
+    const visibleLevel = clamp(Math.pow(audio.level, 0.72), 0, 1);
+    const pct = Math.round(visibleLevel * 100);
     levelFill.style.width = pct + '%';
     levelText.textContent = pct + '%';
   }
@@ -758,6 +942,7 @@
     highEnergy = 0;
     pulse = 0;
     fluxAvg = 0;
+    redGlitch = 0;
     levelFill.style.width = '0%';
     levelText.textContent = '0%';
   }
@@ -775,6 +960,7 @@
   function render() {
     frame++;
     const audio = getAudio();
+    updateSilenceMutation(audio);
     renderScene(audio);
     presentScene(audio);
     drawMeter(audio);
