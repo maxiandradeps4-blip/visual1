@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Tipografía Glitch Reactiva al Micrófono</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #ffffff;
+  }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    color: #000;
+  }
+  canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  #ui {
+    position: fixed;
+    left: 18px;
+    top: 18px;
+    z-index: 10;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-width: calc(100vw - 36px);
+    mix-blend-mode: difference;
+  }
+  button, .meterWrap {
+    border: 1px solid rgba(255,255,255,.85);
+    background: rgba(0,0,0,.68);
+    color: white;
+    min-height: 42px;
+    padding: 10px 13px;
+    font: 700 11px/1 Arial, sans-serif;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    backdrop-filter: blur(4px);
+  }
+  button { cursor: pointer; }
+  button:hover {
+    background: white;
+    color: black;
+  }
+  .meterWrap {
+    width: 150px;
+    display: flex;
+    align-items: center;
+    padding: 7px;
+  }
+  #meter {
+    height: 6px;
+    width: 0%;
+    background: #fff;
+    transition: width .03s linear;
+  }
+
+  #status {
+    position: fixed;
+    left: 18px;
+    bottom: 18px;
+    z-index: 10;
+    max-width: min(760px, calc(100vw - 36px));
+    font: 700 11px/1.45 Arial, sans-serif;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(0,0,0,.72);
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="ui">
+  <button id="micBtn">activar micrófono</button>
+  <button id="chaosBtn">caos manual</button>
+  <button id="resetBtn">reiniciar</button>
+  <div class="meterWrap"><div id="meter"></div></div>
+</div>
+
+<div id="status">
+  En silencio: pocas palabras, fondo blanco. Con sonido fuerte: la tipografía se superpone, se corta y se desparrama.
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  const micBtn = document.getElementById('micBtn');
+  const chaosBtn = document.getElementById('chaosBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const meter = document.getElementById('meter');
+  const status = document.getElementById('status');
+
+  let W = innerWidth, H = innerHeight;
+  let dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+  let audioCtx = null;
+  let analyser = null;
+  let data = null;
+  let micActive = false;
+
+  let level = 0;
+  let smoothLevel = 0;
+  let lastLevel = 0;
+  let frame = 0;
+  let threshold = 0.16;
+  let lastExplosion = 0;
+  let lastStrongSound = 0;
+  let mode = 'idle';
+
+  const off = document.createElement('canvas');
+  const offCtx = off.getContext('2d');
+
+  const idleWords = [
+    'sonido', 'escucha', 'prueba', 'eco', 'cariño',
+    'afecto', 'ensayo', 'ruido', 'vibra', 'contacto',
+    'experimento', 'pulso', 'aire', 'onda'
+  ];
+
+  const posterWords = [
+    'SONIDO', 'RUIDO', 'ECO', 'ENSAYO', 'CARIÑO',
+    'AFECTO', 'VIBRA', 'PRUEBA', 'EXPERIMENTO', 'CONTACTO',
+    'PULSO', 'ONDA', 'ESCUCHA', 'TEMBLOR'
+  ];
+
+  let items = [];
+
+  function rnd(a, b){ return a + Math.random() * (b - a); }
+  function pick(arr){ return arr[(Math.random() * arr.length) | 0]; }
+  function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+
+  function resize(){
+    W = innerWidth;
+    H = innerHeight;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    resetComposition();
+  }
+
+  class TypeItem {
+    constructor(text, x, y, size, opts = {}) {
+      this.text = text;
+      this.x = x;
+      this.y = y;
+      this.baseX = x;
+      this.baseY = y;
+      this.size = size;
+      this.baseSize = size;
+      this.rot = opts.rot ?? rnd(-0.15, 0.15);
+      this.baseRot = this.rot;
+      this.vx = 0;
+      this.vy = 0;
+      this.vr = 0;
+      this.alpha = opts.alpha ?? 1;
+      this.weight = opts.weight ?? 900;
+      this.italic = opts.italic ?? true;
+      this.scaleX = opts.scaleX ?? rnd(0.82, 1.18);
+      this.scaleY = opts.scaleY ?? rnd(0.94, 1.06);
+      this.sliceBias = opts.sliceBias ?? rnd(0.2, 1);
+      this.gray = opts.gray ?? 0;
+      this.stroke = opts.stroke ?? false;
+      this.phase = rnd(0, Math.PI * 2);
+      this.kind = opts.kind ?? 'poster';
+      this.anchor = opts.anchor ?? false;
+    }
+    explode(power, cx, cy){
+      const dx = this.x - cx;
+      const dy = this.y - cy;
+      const dist = Math.sqrt(dx*dx + dy*dy) + 1;
+      const force = power * rnd(14, 45) / (1 + dist / 180);
+      this.vx += dx / dist * force + rnd(-power*8, power*8);
+      this.vy += dy / dist * force + rnd(-power*8, power*8);
+      this.vr += rnd(-0.02, 0.02) * power * 25;
+      if (power > 1.2 && Math.random() < 0.16) {
+        this.rot += rnd(-0.6, 0.6);
+      }
+    }
+    update(activity){
+      this.phase += 0.006 + activity * 0.02;
+
+      const drift = this.kind === 'idle' ? 0.14 : 0.05;
+      this.x += Math.sin(this.phase) * drift + this.vx;
+      this.y += Math.cos(this.phase * 1.1) * drift + this.vy;
+      this.rot += this.vr;
+
+      this.vx *= 0.965;
+      this.vy *= 0.965;
+      this.vr *= 0.97;
+
+      const back = this.kind === 'idle' ? 0.008 : 0.0024;
+      this.vx += (this.baseX - this.x) * back;
+      this.vy += (this.baseY - this.y) * back;
+      this.vr += (this.baseRot - this.rot) * back * 0.2;
+    }
+  }
+
+  function buildIdle(){
+    items = [];
+    const count = Math.max(5, Math.min(10, Math.round(W / 280)));
+
+    for(let i = 0; i < count; i++){
+      const word = pick(idleWords);
+      const x = rnd(W * 0.12, W * 0.88);
+      const y = rnd(H * 0.16, H * 0.84);
+      const size = rnd(18, Math.min(46, W * 0.038));
+      items.push(new TypeItem(word, x, y, size, {
+        kind: 'idle',
+        weight: Math.random() < 0.5 ? 400 : 700,
+        italic: Math.random() < 0.75,
+        alpha: rnd(0.35, 0.82),
+        gray: rnd(0.08, 0.38),
+        rot: rnd(-0.06, 0.06),
+        scaleX: rnd(0.95, 1.06),
+        scaleY: rnd(0.96, 1.04)
+      }));
+    }
+  }
+
+  function buildPoster(){
+    items = [];
+    const count = Math.min(22, Math.max(12, Math.round(W / 85)));
+
+    for(let i = 0; i < count; i++){
+      const word = pick(posterWords);
+      const huge = Math.random() < 0.45;
+      const size = huge
+        ? rnd(Math.min(W, H) * 0.18, Math.min(W, H) * 0.42)
+        : rnd(Math.min(W, H) * 0.08, Math.min(W, H) * 0.16);
+
+      const x = rnd(-W * 0.06, W * 1.06);
+      const y = rnd(-H * 0.03, H * 1.03);
+
+      items.push(new TypeItem(word, x, y, size, {
+        kind: 'poster',
+        weight: 900,
+        italic: true,
+        alpha: rnd(0.9, 1),
+        gray: 0,
+        rot: rnd(-0.2, 0.2),
+        scaleX: rnd(0.82, 1.16),
+        scaleY: rnd(0.88, 1.08),
+        sliceBias: rnd(0.4, 1.1),
+        anchor: huge
+      }));
+    }
+
+    // Anclas grandes, para acercarse más a la referencia visual
+    const anchors = [
+      ['SONIDO', W * 0.18, H * 0.18, Math.min(W,H) * 0.32, -0.08],
+      ['RUIDO',  W * 0.66, H * 0.28, Math.min(W,H) * 0.26,  0.10],
+      ['CARIÑO', W * 0.28, H * 0.52, Math.min(W,H) * 0.30, -0.03],
+      ['VIBRA',  W * 0.72, H * 0.68, Math.min(W,H) * 0.23,  0.05],
+      ['ECO',    W * 0.57, H * 0.88, Math.min(W,H) * 0.28, -0.10],
+    ];
+
+    for (const [t,x,y,s,r] of anchors){
+      items.push(new TypeItem(t, x, y, s, {
+        kind:'poster',
+        weight:900,
+        italic:true,
+        alpha:1,
+        gray:0,
+        rot:r,
+        scaleX:rnd(0.84,1.08),
+        scaleY:rnd(0.9,1.03),
+        sliceBias:rnd(0.65,1.2),
+        anchor:true
+      }));
+    }
+  }
+
+  function resetComposition(){
+    if(mode === 'idle') buildIdle();
+    else buildPoster();
+  }
+
+  function setMode(next){
+    if(next === mode) return;
+    mode = next;
+    resetComposition();
+    if(mode === 'idle'){
+      status.textContent = 'Silencio: fondo blanco y pocas palabras. Haz ruido para romper la composición.';
+    } else {
+      status.textContent = 'Actividad detectada: la tipografía se superpone, se corta y se desparrama.';
+    }
+  }
+
+  function drawWhiteBackground(){
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,W,H);
+  }
+
+  function drawPaperNoise(amount = 0.03){
+    ctx.save();
+    ctx.globalAlpha = amount;
+    for(let i=0;i<55;i++){
+      ctx.fillStyle = Math.random() < 0.5 ? '#000' : '#666';
+      ctx.fillRect(rnd(0,W), rnd(0,H), rnd(1,2), rnd(1,2));
+    }
+    ctx.restore();
+  }
+
+  function drawIdleWord(it){
+    ctx.save();
+    ctx.translate(it.x, it.y);
+    ctx.rotate(it.rot);
+    ctx.scale(it.scaleX, it.scaleY);
+    ctx.globalAlpha = it.alpha;
+    const g = Math.floor(255 * (1 - it.gray));
+    ctx.fillStyle = `rgb(${g},${g},${g})`;
+    ctx.font = `${it.italic ? 'italic ' : ''}${it.weight} ${it.size}px Georgia, "Times New Roman", serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(it.text, 0, 0);
+    ctx.restore();
+  }
+
+  function drawSlicedPosterWord(it, intensity){
+    const pad = Math.ceil(it.size * 0.9);
+    const offW = Math.max(180, Math.ceil(it.size * (it.text.length * 0.72 + 2.1) * 1.2));
+    const offH = Math.max(120, Math.ceil(it.size * 1.85));
+
+    off.width = offW;
+    off.height = offH;
+    offCtx.setTransform(1,0,0,1,0,0);
+    offCtx.clearRect(0,0,offW,offH);
+
+    const cx = offW / 2;
+    const cy = offH / 2;
+    offCtx.translate(cx, cy);
+    offCtx.scale(it.scaleX, it.scaleY);
+
+    offCtx.font = `${it.italic ? 'italic ' : ''}${it.weight} ${it.size}px Georgia, "Times New Roman", serif`;
+    offCtx.textAlign = 'center';
+    offCtx.textBaseline = 'middle';
+    offCtx.fillStyle = '#000000';
+
+    // base
+    offCtx.fillText(it.text, 0, 0);
+
+    // duplicaciones sutiles
+    offCtx.globalAlpha = clamp(0.18 + intensity * 0.2, 0.12, 0.36);
+    offCtx.fillText(it.text, -it.size * 0.03, 0);
+    offCtx.fillText(it.text,  it.size * 0.03, 0);
+    offCtx.globalAlpha = 1;
+    offCtx.setTransform(1,0,0,1,0,0);
+
+    ctx.save();
+    ctx.translate(it.x, it.y);
+    ctx.rotate(it.rot);
+
+    const destX = -offW / 2;
+    const destY = -offH / 2;
+
+    if (intensity < 0.08) {
+      ctx.drawImage(off, destX, destY);
+      ctx.restore();
+      return;
+    }
+
+    let y = 0;
+    const baseH = clamp(it.size * 0.08, 3, 12);
+    while(y < offH){
+      const sh = rnd(baseH * 0.65, baseH * 1.7);
+
+      const stair = Math.floor(y / (baseH * 0.9));
+      const amp = intensity * (18 + it.size * 0.18) * it.sliceBias;
+      const dx = Math.sin(stair * 0.65 + frame * 0.05 + it.phase) * amp
+               + (Math.random() - 0.5) * amp * 0.6;
+
+      // capa principal
+      ctx.drawImage(off, 0, y, offW, sh, destX + dx, destY + y, offW, sh);
+
+      // eco escalonado, parecido a la referencia
+      if (intensity > 0.14 && Math.random() < 0.72) {
+        const copies = Math.min(6, Math.floor(1 + intensity * 10));
+        for(let c = 1; c <= copies; c++){
+          const step = c * clamp(it.size * 0.04, 3, 14);
+          ctx.globalAlpha = clamp(0.18 - c * 0.022 + intensity * 0.08, 0.03, 0.18);
+          ctx.drawImage(off, 0, y, offW, sh, destX + dx - step, destY + y + c * 0.7, offW, sh);
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      y += sh;
+    }
+
+    ctx.restore();
+  }
+
+  function drawScanFragments(intensity){
+    if (intensity < 0.1) return;
+    ctx.save();
+    ctx.globalAlpha = clamp(intensity * 0.16, 0, 0.18);
+    ctx.fillStyle = '#000';
+    const n = Math.floor(10 + intensity * 45);
+    for(let i=0;i<n;i++){
+      const y = rnd(0,H);
+      const h = rnd(1, 5);
+      const x = rnd(0,W);
+      const w = rnd(W * 0.05, W * 0.35);
+      ctx.fillRect(x, y, w, h);
+    }
+    ctx.restore();
+  }
+
+  function micEnergy(){
+    if(!analyser || !data) return 0;
+    analyser.getByteTimeDomainData(data);
+
+    let sum = 0;
+    let peak = 0;
+    for(let i=0;i<data.length;i++){
+      const v = (data[i] - 128) / 128;
+      sum += v * v;
+      peak = Math.max(peak, Math.abs(v));
+    }
+    const rms = Math.sqrt(sum / data.length);
+    return Math.min(1, rms * 2.7 + peak * 0.18);
+  }
+
+  async function activateMic(){
+    try{
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      if(audioCtx.state === 'suspended') await audioCtx.resume();
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false
+        }
+      });
+
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 1024;
+      analyser.smoothingTimeConstant = 0.22;
+      data = new Uint8Array(analyser.fftSize);
+
+      const src = audioCtx.createMediaStreamSource(stream);
+      src.connect(analyser);
+
+      micActive = true;
+      micBtn.textContent = 'micrófono activo';
+      status.textContent = 'Micrófono activo. En silencio verás calma; con picos fuertes, caos tipográfico.';
+    } catch(err){
+      console.error(err);
+      status.textContent = 'No se pudo activar el micrófono. Revisa permisos del navegador. Puedes usar “caos manual”.';
+    }
+  }
+
+  function explode(power = 1.4, cx = W * 0.5, cy = H * 0.5){
+    lastExplosion = performance.now();
+    lastStrongSound = performance.now();
+    setMode('poster');
+
+    items.forEach(it => {
+      if (Math.random() < clamp(0.62 + power * 0.18, 0.6, 0.98)) {
+        it.explode(power, cx, cy);
+      }
+      if (Math.random() < 0.16 && it.kind === 'poster') {
+        it.baseX += rnd(-W * 0.06, W * 0.06);
+        it.baseY += rnd(-H * 0.06, H * 0.06);
+      }
+    });
+  }
+
+  function updateState(){
+    lastLevel = level;
+    level = micActive ? micEnergy() : 0;
+    smoothLevel += (level - smoothLevel) * (level > smoothLevel ? 0.34 : 0.08);
+    meter.style.width = (clamp(smoothLevel, 0, 1) * 100).toFixed(1) + '%';
+
+    const now = performance.now();
+    const transient = level - lastLevel;
+
+    if (micActive && level > 0.06) lastStrongSound = now;
+
+    if (micActive && now - lastExplosion > 160 && (level > threshold && transient > 0.016)) {
+      const p = 0.9 + level * 3.2;
+      explode(p, rnd(W * 0.18, W * 0.82), rnd(H * 0.15, H * 0.85));
+      threshold = Math.min(0.32, threshold * 0.91 + level * 0.12);
+    } else {
+      threshold += (0.14 - threshold) * 0.01;
+    }
+
+    if ((now - lastStrongSound > 2400) && smoothLevel < 0.05) {
+      setMode('idle');
+    } else if (smoothLevel > 0.065 || now - lastExplosion < 1300) {
+      setMode('poster');
+    }
+  }
+
+  function render(){
+    frame++;
+    updateState();
+
+    drawWhiteBackground();
+
+    // fondo siempre muy limpio
+    if (mode === 'idle') drawPaperNoise(0.012);
+    else drawPaperNoise(0.02 + smoothLevel * 0.03);
+
+    const intensity = clamp(smoothLevel + Math.max(0, 1 - ((performance.now() - lastExplosion) / 1100)) * 0.22, 0, 1);
+
+    for (const it of items) {
+      it.update(intensity);
+      if (mode === 'idle' || it.kind === 'idle') {
+        drawIdleWord(it);
+      } else {
+        drawSlicedPosterWord(it, intensity);
+      }
+    }
+
+    drawScanFragments(intensity);
+
+    // leves líneas de registro
+    if (mode === 'poster' && intensity > 0.08) {
+      ctx.save();
+      ctx.globalAlpha = clamp(0.05 + intensity * 0.08, 0.04, 0.12);
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < 7; i++) {
+        const y = rnd(0, H);
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(W, y);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    requestAnimationFrame(render);
+  }
+
+  micBtn.addEventListener('click', activateMic);
+  chaosBtn.addEventListener('click', () => explode(1.7, W * 0.5, H * 0.5));
+  resetBtn.addEventListener('click', () => resetComposition());
+
+  window.addEventListener('pointerdown', e => {
+    if (e.target.closest('#ui')) return;
+    explode(1.35, e.clientX, e.clientY);
+  });
+
+  window.addEventListener('resize', resize);
+
+  resize();
+  buildIdle();
+  render();
+})();
+</script>
+</body>
+</html>
