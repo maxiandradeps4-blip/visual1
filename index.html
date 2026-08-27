@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Visual tipográfico reactivo al sonido</title>
+<title>Glitch tipográfico reactivo</title>
 <style>
   * { box-sizing: border-box; }
   html, body {
@@ -14,8 +14,8 @@
     background: #fff;
   }
   body {
+    background: #fff;
     font-family: Georgia, "Times New Roman", serif;
-    color: #000;
   }
   canvas {
     position: fixed;
@@ -23,463 +23,433 @@
     width: 100%;
     height: 100%;
     display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
   }
-
-  #ui {
+  #toggleMic {
     position: fixed;
+    z-index: 20;
     left: 18px;
     top: 18px;
-    z-index: 20;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    max-width: calc(100vw - 36px);
-    mix-blend-mode: difference;
-  }
-
-  button, .meterWrap, .stats {
-    border: 1px solid rgba(255,255,255,.82);
-    background: rgba(0,0,0,.72);
-    color: #fff;
+    border: 1px solid #000;
+    background: #fff;
+    color: #000;
+    padding: 10px 14px;
     min-height: 42px;
-    padding: 10px 13px;
     font: 700 11px/1 Arial, sans-serif;
     letter-spacing: .12em;
     text-transform: uppercase;
-    backdrop-filter: blur(4px);
+    cursor: pointer;
+    mix-blend-mode: difference;
   }
-  button { cursor: pointer; }
-  button:hover { background:#fff; color:#000; }
-
-  .meterWrap {
-    width: 140px;
-    display: flex;
-    align-items: center;
-    padding: 7px;
-  }
-  #meter {
-    width: 0%;
-    height: 6px;
-    background: #fff;
-    transition: width .03s linear;
-  }
-
-  .stats {
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-  }
-
-  #status {
-    position: fixed;
-    left: 18px;
-    bottom: 18px;
-    z-index: 20;
-    max-width: min(840px, calc(100vw - 36px));
-    font: 700 11px/1.45 Arial, sans-serif;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: rgba(0,0,0,.72);
+  #toggleMic:hover {
+    background: #000;
+    color: #fff;
   }
 </style>
 </head>
 <body>
-<canvas id="c"></canvas>
-
-<div id="ui">
-  <button id="micBtn">activar micrófono</button>
-  <button id="resetBtn">reordenar</button>
-  <div class="meterWrap"><div id="meter"></div></div>
-  <div class="stats" id="stats">nivel 0.00 / pulso 0.00</div>
-</div>
-
-<div id="status">Activar o desactivar el micrófono</div>
+<canvas id="view"></canvas>
+<button id="toggleMic">Activar o desactivar el micrófono</button>
 
 <script>
 (() => {
-  const canvas = document.getElementById('c');
-  const ctx = canvas.getContext('2d');
-  const micBtn = document.getElementById('micBtn');
-  const resetBtn = document.getElementById('resetBtn');
-  const meter = document.getElementById('meter');
-  const stats = document.getElementById('stats');
-  const status = document.getElementById('status');
+  const canvas = document.getElementById('view');
+  const ctx = canvas.getContext('2d', { alpha: false });
+  const button = document.getElementById('toggleMic');
 
   let W = innerWidth, H = innerHeight;
   let dpr = Math.min(window.devicePixelRatio || 1, 2);
 
+  const scene = document.createElement('canvas');
+  const sctx = scene.getContext('2d', { willReadFrequently: true });
+  const textBuf = document.createElement('canvas');
+  const tctx = textBuf.getContext('2d');
+
+  let sceneScale = 0.18;      // bajo para pixelar
+  let sw = 320, sh = 180;
+
   let audioCtx = null;
   let analyser = null;
+  let stream = null;
+  let micActive = false;
   let freqData = null;
   let timeData = null;
   let prevFreq = null;
-  let micActive = false;
 
   let smoothLevel = 0;
   let lowEnergy = 0;
-  let midEnergy = 0;
   let highEnergy = 0;
-  let pulse = 0;       // golpe / beat perceptual
-  let shimmer = 0;     // detalle de agudos
-  let calmTimer = 0;
-  let lastOnset = 0;
-  let onsetThreshold = 0.08;
+  let pulse = 0;
+  let fluxAvg = 0;
   let frame = 0;
-  let items = [];
 
-  const words = [
-    'SONIDO','RUIDO','ECO','CARIÑO','AFECTO','ENSAYO',
-    'VIBRA','PRUEBA','ESCUCHA','ONDA','PULSO','EXPERIMENTO',
-    'CONTACTO','TEMBLOR','AMOR','SEÑAL','LATIDO','RESONANCIA'
+  const calmWords = [
+    'sonido','eco','cariño','afecto','prueba','onda','escucha'
   ];
 
-  const palette = {
-    bg: '#ffffff',
-    fg: '#000000',
-    soft: 'rgba(0,0,0,.18)',
-    softer: 'rgba(0,0,0,.08)'
-  };
+  const denseWords = [
+    'SONIDO','RUIDO','ECO','PULSO','CARIÑO','AFECTO','EXPERIMENTO',
+    'ONDA','SEÑAL','VIBRA','LATIDO','RESONANCIA','TEMBLOR',
+    '////','†','‡','≠','∞','▓▓','▒▒','[]','()','+','×','◼'
+  ];
 
-  function rnd(a,b){ return a + Math.random() * (b-a); }
-  function pick(a){ return a[(Math.random() * a.length)|0]; }
+  let items = [];
+
+  function rnd(a,b){ return a + Math.random() * (b - a); }
+  function pick(arr){ return arr[(Math.random() * arr.length) | 0]; }
   function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
-  function lerp(a,b,t){ return a + (b-a)*t; }
+  function lerp(a,b,t){ return a + (b-a) * t; }
 
-  function resize() {
-    W = innerWidth;
-    H = innerHeight;
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = W * dpr;
-    canvas.height = H * dpr;
-    canvas.style.width = W + 'px';
-    canvas.style.height = H + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    buildComposition();
-  }
-
-  class WordItem {
+  class Item {
     constructor(text, x, y, size, opts = {}) {
       this.text = text;
-      this.baseX = x;
-      this.baseY = y;
-      this.x = x;
-      this.y = y;
+      this.baseX = x; this.baseY = y;
+      this.x = x; this.y = y;
       this.size = size;
       this.weight = opts.weight ?? 900;
       this.italic = opts.italic ?? true;
-      this.alpha = opts.alpha ?? 1;
       this.rot = opts.rot ?? rnd(-0.12, 0.12);
       this.baseRot = this.rot;
-
-      this.floatSpeed = opts.floatSpeed ?? rnd(0.15, 0.55);
-      this.floatAmpX = opts.floatAmpX ?? rnd(10, 28);
-      this.floatAmpY = opts.floatAmpY ?? rnd(8, 22);
-
-      this.phase = rnd(0, Math.PI * 2);
-      this.jitterX = 0;
-      this.jitterY = 0;
-      this.jitterRot = 0;
-
-      this.vx = 0;
-      this.vy = 0;
-      this.vr = 0;
-
-      this.scaleX = opts.scaleX ?? rnd(0.82, 1.14);
-      this.scaleY = opts.scaleY ?? rnd(0.90, 1.06);
-      this.layer = opts.layer ?? 0;
+      this.alpha = opts.alpha ?? 1;
+      this.kind = opts.kind ?? 'dense';
       this.anchor = opts.anchor ?? false;
-      this.sliceBias = opts.sliceBias ?? rnd(0.45, 1.15);
+      this.scaleX = opts.scaleX ?? rnd(0.84, 1.12);
+      this.scaleY = opts.scaleY ?? rnd(0.88, 1.04);
+      this.floatAmpX = opts.floatAmpX ?? rnd(12, 28);
+      this.floatAmpY = opts.floatAmpY ?? rnd(8, 20);
+      this.floatSpeed = opts.floatSpeed ?? rnd(0.15, 0.45);
+      this.phase = rnd(0, Math.PI * 2);
+      this.vx = 0; this.vy = 0; this.vr = 0;
     }
+    kick(power){
+      this.vx += rnd(-1,1) * power * (this.anchor ? 14 : 8);
+      this.vy += rnd(-1,1) * power * (this.anchor ? 8 : 5);
+      this.vr += rnd(-1,1) * power * 0.08;
+    }
+    update(audio){
+      this.phase += 0.004 + audio.level * 0.013 + audio.high * 0.01;
 
-    update(audio) {
-      this.phase += 0.004 + audio.level * 0.015 + audio.high * 0.008;
+      const calmX = this.baseX + Math.sin(this.phase * this.floatSpeed) * this.floatAmpX;
+      const calmY = this.baseY + Math.cos(this.phase * this.floatSpeed * 0.81) * this.floatAmpY;
 
-      // flotación base, siempre viva
-      const tx = this.baseX + Math.sin(this.phase * this.floatSpeed) * this.floatAmpX;
-      const ty = this.baseY + Math.cos(this.phase * this.floatSpeed * 0.82) * this.floatAmpY;
+      const move = 1 + audio.level * 18 + audio.low * 10;
+      const jitter = audio.pulse * (this.anchor ? 24 : 14) + audio.high * 4;
 
-      // movimiento musical continuo
-      const musicMove = 1 + audio.level * 18 + audio.low * 12;
-      const jiggle = audio.pulse * (this.anchor ? 20 : 12) + audio.high * 4;
+      const targetX = calmX + Math.sin(frame * 0.03 + this.phase * 1.3) * move + rnd(-jitter, jitter);
+      const targetY = calmY + Math.cos(frame * 0.025 + this.phase * 1.1) * move + rnd(-jitter, jitter) * 0.55;
 
-      const px = tx + Math.sin(frame * 0.03 + this.phase * 1.9) * musicMove + rnd(-jiggle, jiggle);
-      const py = ty + Math.cos(frame * 0.025 + this.phase * 1.4) * musicMove + rnd(-jiggle, jiggle) * 0.55;
+      this.x += (targetX - this.x) * (0.08 + audio.level * 0.08);
+      this.y += (targetY - this.y) * (0.08 + audio.level * 0.08);
 
-      this.x += (px - this.x) * (0.06 + audio.level * 0.08);
-      this.y += (py - this.y) * (0.06 + audio.level * 0.08);
-
-      // impulsos
-      this.vx *= 0.92;
-      this.vy *= 0.92;
-      this.vr *= 0.92;
+      this.vx *= 0.90;
+      this.vy *= 0.90;
+      this.vr *= 0.90;
 
       this.x += this.vx;
       this.y += this.vy;
       this.rot += this.vr;
 
-      // rotación viva con beat
-      const targetRot = this.baseRot + Math.sin(this.phase * 1.2) * 0.02 + audio.pulse * rnd(-0.18, 0.18);
+      const targetRot = this.baseRot + Math.sin(this.phase) * 0.03 + rnd(-1,1) * audio.pulse * 0.12;
       this.rot += (targetRot - this.rot) * 0.08;
-    }
-
-    kick(power) {
-      this.vx += rnd(-1,1) * power * (this.anchor ? 11 : 7);
-      this.vy += rnd(-1,1) * power * (this.anchor ? 7 : 4);
-      this.vr += rnd(-1,1) * power * 0.07;
-    }
-
-    draw(audio) {
-      const intensity = clamp(audio.level * 0.8 + audio.pulse * 1.2, 0, 1);
-      const showSlices = intensity > 0.035;
-
-      if (!showSlices) {
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.rotate(this.rot);
-        ctx.scale(this.scaleX * (1 + audio.low * 0.06), this.scaleY * (1 - audio.high * 0.03));
-        ctx.globalAlpha = this.alpha * (0.42 + audio.level * 0.45);
-        ctx.fillStyle = '#000';
-        ctx.font = `${this.italic ? 'italic ' : ''}${this.weight} ${this.size}px Georgia, "Times New Roman", serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(this.text, 0, 0);
-        ctx.restore();
-        return;
-      }
-
-      // Render tipográfico con slices/glitch
-      const pad = Math.ceil(this.size * 0.8);
-      const off = document.createElement('canvas');
-      const octx = off.getContext('2d');
-
-      const offW = Math.max(180, Math.ceil(this.size * (this.text.length * 0.72 + 2.1) * 1.22));
-      const offH = Math.max(120, Math.ceil(this.size * 1.9));
-      off.width = offW;
-      off.height = offH;
-
-      octx.clearRect(0,0,offW,offH);
-      octx.translate(offW / 2, offH / 2);
-      octx.scale(this.scaleX * (1 + audio.low * 0.08), this.scaleY * (1 - audio.high * 0.04));
-      octx.font = `${this.italic ? 'italic ' : ''}${this.weight} ${this.size}px Georgia, "Times New Roman", serif`;
-      octx.textAlign = 'center';
-      octx.textBaseline = 'middle';
-      octx.fillStyle = '#000';
-
-      // capa base
-      octx.fillText(this.text, 0, 0);
-
-      // duplicaciones, para densidad gráfica
-      octx.globalAlpha = clamp(0.12 + audio.level * 0.18, 0.08, 0.24);
-      octx.fillText(this.text, -this.size * 0.022, 0);
-      octx.fillText(this.text,  this.size * 0.022, 0);
-      octx.globalAlpha = 1;
-
-      ctx.save();
-      ctx.translate(this.x, this.y);
-      ctx.rotate(this.rot);
-
-      const destX = -offW / 2;
-      const destY = -offH / 2;
-      const baseH = clamp(this.size * 0.08, 3, 13);
-      const amp = (audio.level * 10 + audio.pulse * 28 + audio.high * 10) * this.sliceBias;
-      let y = 0;
-
-      while (y < offH) {
-        const sh = rnd(baseH * 0.72, baseH * 1.75);
-        const stair = Math.floor(y / baseH);
-        const dx = Math.sin(stair * 0.75 + frame * 0.03 + this.phase) * amp
-                 + (Math.random() - 0.5) * amp * 0.65;
-
-        ctx.drawImage(off, 0, y, offW, sh, destX + dx, destY + y, offW, sh);
-
-        // ecos escalonados; más notorios en cada beat
-        if (audio.pulse > 0.06 && Math.random() < 0.82) {
-          const copies = Math.min(7, Math.floor(1 + audio.pulse * 10 + audio.level * 3));
-          for (let c = 1; c <= copies; c++) {
-            const step = c * clamp(this.size * 0.036, 3, 13);
-            ctx.globalAlpha = clamp(0.14 - c * 0.018 + audio.pulse * 0.07, 0.025, 0.14);
-            ctx.drawImage(off, 0, y, offW, sh, destX + dx - step, destY + y + c * 0.4, offW, sh);
-          }
-          ctx.globalAlpha = 1;
-        }
-
-        y += sh;
-      }
-
-      ctx.restore();
     }
   }
 
-  function buildComposition() {
+  function resize(){
+    W = innerWidth;
+    H = innerHeight;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const minSide = Math.min(W, H);
+    sceneScale = minSide > 1200 ? 0.16 : minSide > 900 ? 0.18 : 0.22;
+    sw = Math.max(180, Math.round(W * sceneScale));
+    sh = Math.max(120, Math.round(H * sceneScale));
+    scene.width = sw;
+    scene.height = sh;
+
+    buildComposition();
+  }
+
+  function buildComposition(){
     items = [];
 
-    // pocas palabras medianas de base
-    const sparseCount = Math.max(7, Math.min(12, Math.round(W / 180)));
-    for (let i = 0; i < sparseCount; i++) {
-      items.push(new WordItem(
-        pick(words),
+    const calmCount = Math.max(5, Math.min(9, Math.round(W / 280)));
+    for (let i = 0; i < calmCount; i++) {
+      items.push(new Item(
+        pick(calmWords),
         rnd(W * 0.12, W * 0.88),
-        rnd(H * 0.14, H * 0.86),
-        rnd(20, Math.min(48, W * 0.038)),
+        rnd(H * 0.16, H * 0.86),
+        rnd(18, Math.min(48, W * 0.038)),
         {
+          kind: 'calm',
           weight: Math.random() < 0.45 ? 400 : 700,
-          italic: Math.random() < 0.78,
-          alpha: rnd(0.42, 0.86),
+          italic: Math.random() < 0.8,
+          alpha: rnd(0.42, 0.8),
           rot: rnd(-0.05, 0.05),
-          floatAmpX: rnd(12, 36),
-          floatAmpY: rnd(10, 30),
-          floatSpeed: rnd(0.18, 0.48),
           scaleX: rnd(0.96, 1.05),
-          scaleY: rnd(0.96, 1.04),
-          layer: 0,
-          anchor: false,
-          sliceBias: rnd(0.3, 0.65)
+          scaleY: rnd(0.96, 1.03),
+          floatAmpX: rnd(16, 34),
+          floatAmpY: rnd(10, 26),
+          floatSpeed: rnd(0.18, 0.42)
         }
       ));
     }
 
-    // palabras grandes protagonistas
     const anchors = [
       ['SONIDO', W * 0.24, H * 0.22, Math.min(W,H) * 0.24, -0.08],
-      ['RUIDO',  W * 0.68, H * 0.30, Math.min(W,H) * 0.21,  0.08],
-      ['CARIÑO', W * 0.34, H * 0.56, Math.min(W,H) * 0.23, -0.04],
-      ['ECO',    W * 0.68, H * 0.78, Math.min(W,H) * 0.24, -0.07],
-      ['PULSO',  W * 0.18, H * 0.84, Math.min(W,H) * 0.16,  0.03]
+      ['RUIDO',  W * 0.66, H * 0.28, Math.min(W,H) * 0.21,  0.08],
+      ['CARIÑO', W * 0.32, H * 0.54, Math.min(W,H) * 0.24, -0.04],
+      ['ECO',    W * 0.71, H * 0.74, Math.min(W,H) * 0.25, -0.06],
+      ['PULSO',  W * 0.18, H * 0.84, Math.min(W,H) * 0.16,  0.03],
     ];
 
-    for (const [t, x, y, s, r] of anchors) {
-      items.push(new WordItem(t, x, y, s, {
+    for (const [t,x,y,s,r] of anchors){
+      items.push(new Item(t, x, y, s, {
+        kind: 'dense',
         weight: 900,
         italic: true,
         alpha: 1,
         rot: r,
-        floatAmpX: rnd(10, 24),
+        scaleX: rnd(0.84, 1.1),
+        scaleY: rnd(0.90, 1.04),
+        floatAmpX: rnd(8, 22),
         floatAmpY: rnd(8, 18),
-        floatSpeed: rnd(0.14, 0.3),
-        scaleX: rnd(0.84, 1.08),
-        scaleY: rnd(0.90, 1.03),
-        layer: 1,
-        anchor: true,
-        sliceBias: rnd(0.75, 1.25)
+        floatSpeed: rnd(0.12, 0.28),
+        anchor: true
       }));
     }
 
-    // extras intermedios para superposición cuando sube la música
-    const extraCount = Math.max(7, Math.min(14, Math.round(W / 130)));
+    const extraCount = Math.max(10, Math.min(20, Math.round(W / 110)));
     for (let i = 0; i < extraCount; i++) {
-      items.push(new WordItem(
-        pick(words),
-        rnd(W * 0.02, W * 0.98),
-        rnd(H * 0.06, H * 0.96),
-        rnd(Math.min(W,H) * 0.08, Math.min(W,H) * 0.16),
+      items.push(new Item(
+        pick(denseWords),
+        rnd(-W * 0.05, W * 1.02),
+        rnd(H * 0.04, H * 0.98),
+        rnd(Math.min(W,H) * 0.08, Math.min(W,H) * 0.18),
         {
-          weight: 900,
+          kind: 'dense',
+          weight: Math.random() < 0.84 ? 900 : 700,
           italic: true,
-          alpha: rnd(0.75, 1),
+          alpha: rnd(0.72, 1),
           rot: rnd(-0.18, 0.18),
+          scaleX: rnd(0.82, 1.18),
+          scaleY: rnd(0.88, 1.08),
           floatAmpX: rnd(10, 26),
           floatAmpY: rnd(8, 20),
-          floatSpeed: rnd(0.18, 0.42),
-          scaleX: rnd(0.82, 1.16),
-          scaleY: rnd(0.89, 1.06),
-          layer: 1,
-          anchor: Math.random() < 0.25,
-          sliceBias: rnd(0.5, 1.1)
+          floatSpeed: rnd(0.16, 0.36),
+          anchor: Math.random() < 0.18
         }
       ));
     }
   }
 
-  function drawBackground(audio) {
-    ctx.fillStyle = palette.bg;
-    ctx.fillRect(0,0,W,H);
+  function drawTextGlitch(item, audio){
+    const x = item.x * sceneScale;
+    const y = item.y * sceneScale;
+    const size = Math.max(8, item.size * sceneScale);
 
-    // textura muy sutil
-    const grainAlpha = 0.01 + audio.level * 0.015;
-    ctx.save();
-    ctx.globalAlpha = grainAlpha;
-    for (let i = 0; i < 60; i++) {
-      ctx.fillStyle = Math.random() < 0.5 ? '#000' : '#666';
-      ctx.fillRect(rnd(0,W), rnd(0,H), 1, 1);
+    const w = Math.max(80, Math.ceil(size * (item.text.length * 0.85 + 2.4) * 1.6));
+    const h = Math.max(36, Math.ceil(size * 2.2));
+    textBuf.width = w;
+    textBuf.height = h;
+
+    tctx.setTransform(1, 0, 0, 1, 0, 0);
+    tctx.clearRect(0, 0, w, h);
+    tctx.translate(w / 2, h / 2);
+    tctx.scale(item.scaleX, item.scaleY);
+    tctx.fillStyle = '#000';
+    tctx.textAlign = 'center';
+    tctx.textBaseline = 'middle';
+    tctx.font = `${item.italic ? 'italic ' : ''}${item.weight} ${size}px Georgia, "Times New Roman", serif`;
+    tctx.fillText(item.text, 0, 0);
+
+    // eco tipográfico para mayor densidad
+    const echoAlpha = clamp(0.08 + audio.level * 0.12 + audio.pulse * 0.18, 0.06, 0.22);
+    tctx.globalAlpha = echoAlpha;
+    tctx.fillText(item.text, -size * 0.05, 0);
+    tctx.fillText(item.text,  size * 0.05, 0);
+    tctx.globalAlpha = 1;
+
+    sctx.save();
+    sctx.translate(x, y);
+    sctx.rotate(item.rot);
+
+    const intensity = clamp(audio.level * 0.8 + audio.pulse * 1.1 + audio.high * 0.4, 0, 1);
+    const baseSlice = Math.max(1, Math.floor(size * 0.08));
+    const amp = intensity * (size * 0.7 + 10);
+
+    if (intensity < 0.05) {
+      sctx.globalAlpha = item.alpha;
+      sctx.drawImage(textBuf, -w/2, -h/2);
+      sctx.restore();
+      return;
     }
-    ctx.restore();
 
-    // líneas horizontales leves, más visibles con agudos
-    if (audio.high > 0.02) {
-      ctx.save();
-      ctx.globalAlpha = clamp(audio.high * 0.12, 0, 0.1);
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 1;
-      const lines = Math.floor(4 + audio.high * 22);
-      for (let i = 0; i < lines; i++) {
-        const y = rnd(0,H);
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(W, y);
-        ctx.stroke();
+    let yy = 0;
+    while (yy < h) {
+      const shh = Math.max(1, Math.floor(rnd(baseSlice * 0.7, baseSlice * 1.9)));
+      const step = Math.floor(yy / Math.max(1, baseSlice));
+      const dx = Math.sin(step * 0.75 + frame * 0.03 + item.phase) * amp
+               + (Math.random() - 0.5) * amp * 0.8;
+
+      sctx.globalAlpha = item.alpha;
+      sctx.drawImage(textBuf, 0, yy, w, shh, -w/2 + dx, -h/2 + yy, w, shh);
+
+      if (audio.pulse > 0.05 && Math.random() < 0.75) {
+        const copies = Math.min(6, Math.floor(1 + audio.pulse * 8));
+        for (let c = 1; c <= copies; c++) {
+          const stepOff = c * Math.max(1, Math.floor(size * 0.05));
+          sctx.globalAlpha = clamp(0.12 - c * 0.016 + audio.pulse * 0.08, 0.02, 0.12);
+          sctx.drawImage(textBuf, 0, yy, w, shh, -w/2 + dx - stepOff, -h/2 + yy + c * 0.35, w, shh);
+        }
       }
+      yy += shh;
+    }
+
+    sctx.globalAlpha = 1;
+    sctx.restore();
+  }
+
+  function renderScene(audio){
+    sctx.setTransform(1,0,0,1,0,0);
+    sctx.clearRect(0,0,sw,sh);
+    sctx.fillStyle = '#fff';
+    sctx.fillRect(0,0,sw,sh);
+
+    const calmOpacity = clamp(1 - audio.level * 1.35 - audio.pulse * 1.8, 0.08, 1);
+    const denseOpacity = clamp(audio.level * 1.25 + audio.pulse * 1.5 + 0.08, 0.06, 1);
+
+    for (const item of items) {
+      item.update(audio);
+
+      sctx.save();
+      if (item.kind === 'calm') sctx.globalAlpha *= calmOpacity;
+      else sctx.globalAlpha *= denseOpacity;
+      drawTextGlitch(item, audio);
+      sctx.restore();
+    }
+
+    // barras y ruido gráfico
+    const barCount = Math.floor(2 + audio.high * 12 + audio.pulse * 14);
+    sctx.save();
+    sctx.globalAlpha = clamp(audio.high * 0.18 + audio.pulse * 0.12, 0, 0.22);
+    sctx.fillStyle = '#000';
+    for (let i = 0; i < barCount; i++) {
+      sctx.fillRect(rnd(0, sw), rnd(0, sh), rnd(sw * 0.04, sw * 0.32), rnd(1, 3));
+    }
+    sctx.restore();
+
+    // glitch de pantalla por slices
+    if (audio.pulse > 0.05 || audio.level > 0.1) {
+      const sliceCount = Math.floor(2 + audio.pulse * 14 + audio.high * 8);
+      const amp = Math.floor(2 + audio.pulse * 18 + audio.level * 8);
+      for (let i = 0; i < sliceCount; i++) {
+        const y = Math.floor(rnd(0, sh));
+        const hh = Math.max(1, Math.floor(rnd(1, Math.max(2, 4 + audio.pulse * 10))));
+        const dx = Math.floor(rnd(-amp, amp));
+        try {
+          const img = sctx.getImageData(0, y, sw, hh);
+          sctx.putImageData(img, dx, y);
+        } catch(e) {}
+      }
+    }
+
+    // threshold + ruido
+    const img = sctx.getImageData(0, 0, sw, sh);
+    const px = img.data;
+    const thresh = Math.floor(210 - audio.level * 42 - audio.pulse * 55); // más threshold cuando suena
+    const noiseAmt = 18 + audio.level * 24 + audio.pulse * 34;
+
+    for (let i = 0; i < px.length; i += 4) {
+      const lum = 0.2126 * px[i] + 0.7152 * px[i+1] + 0.0722 * px[i+2];
+      const n = (Math.random() - 0.5) * noiseAmt;
+      const v = (lum + n > thresh) ? 255 : 0;
+
+      // puntitos sueltos adicionales, como threshold roto
+      let vv = v;
+      if (Math.random() < 0.006 + audio.pulse * 0.015) {
+        vv = vv === 255 ? 0 : 255;
+      }
+
+      px[i] = vv;
+      px[i+1] = vv;
+      px[i+2] = vv;
+      px[i+3] = 255;
+    }
+    sctx.putImageData(img, 0, 0);
+
+    // scanlines pixeladas
+    sctx.save();
+    sctx.globalAlpha = clamp(0.04 + audio.high * 0.05 + audio.pulse * 0.04, 0.03, 0.12);
+    sctx.fillStyle = '#000';
+    for (let y = (frame % 3); y < sh; y += 3) {
+      sctx.fillRect(0, y, sw, 1);
+    }
+    sctx.restore();
+  }
+
+  function presentScene(audio){
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, W, H);
+
+    // pasada principal
+    ctx.drawImage(scene, 0, 0, W, H);
+
+    // ghost glitch adicional en los beats
+    if (audio.pulse > 0.06) {
+      ctx.save();
+      ctx.imageSmoothingEnabled = false;
+      ctx.globalAlpha = clamp(audio.pulse * 0.18, 0.04, 0.18);
+      const dx = Math.floor(rnd(-18, 18));
+      const dy = Math.floor(rnd(-4, 4));
+      ctx.drawImage(scene, dx, dy, W, H);
       ctx.restore();
     }
   }
 
-  function glitchScreen(audio) {
-    // Glitch de pantalla al ritmo: usa "pulse", no solo volumen.
-    if (audio.pulse < 0.06) return;
-
-    const slices = Math.floor(4 + audio.pulse * 18);
-    const amp = 8 + audio.pulse * 54;
-
-    for (let i = 0; i < slices; i++) {
-      const y = rnd(0, H);
-      const h = rnd(2, 18);
-      const dx = rnd(-amp, amp);
-
-      try {
-        const slice = ctx.getImageData(0, Math.floor(y * dpr), canvas.width, Math.max(1, Math.floor(h * dpr)));
-        ctx.putImageData(slice, Math.floor(dx * dpr), Math.floor(y * dpr));
-      } catch(e) {}
-    }
-  }
-
-  function computeAudio() {
+  function getAudio(){
     if (!analyser || !freqData || !timeData) {
-      return { level: 0, low: 0, mid: 0, high: 0, pulse: pulse, shimmer: shimmer, calm: true };
+      pulse *= 0.88;
+      return { level: 0, low: 0, high: 0, pulse, calm: true };
     }
 
     analyser.getByteFrequencyData(freqData);
     analyser.getByteTimeDomainData(timeData);
 
+    let low = 0, high = 0, all = 0;
     const n = freqData.length;
-    const lowEnd = Math.floor(n * 0.08);
-    const midEnd = Math.floor(n * 0.28);
-    const highEnd = Math.floor(n * 0.6);
+    const lowEnd = Math.floor(n * 0.10);
+    const highStart = Math.floor(n * 0.28);
 
-    let low = 0, mid = 0, high = 0, all = 0;
     for (let i = 0; i < n; i++) {
       const v = freqData[i] / 255;
       all += v;
       if (i < lowEnd) low += v;
-      else if (i < midEnd) mid += v;
-      else if (i < highEnd) high += v;
+      if (i >= highStart) high += v;
     }
-
     low /= Math.max(1, lowEnd);
-    mid /= Math.max(1, midEnd - lowEnd);
-    high /= Math.max(1, highEnd - midEnd);
+    high /= Math.max(1, n - highStart);
     all /= n;
 
-    // RMS de tiempo para nivel general
     let sum = 0;
     for (let i = 0; i < timeData.length; i++) {
       const v = (timeData[i] - 128) / 128;
       sum += v * v;
     }
     const rms = Math.sqrt(sum / timeData.length);
-    const level = clamp(all * 0.75 + rms * 1.6, 0, 1);
+    const level = clamp(all * 0.7 + rms * 1.7, 0, 1);
 
-    // flux / onset: diferencia positiva de espectro
-    let flux = 0;
     if (!prevFreq) prevFreq = new Float32Array(n);
+    let flux = 0;
     for (let i = 0; i < n; i++) {
       const curr = freqData[i] / 255;
       const diff = curr - prevFreq[i];
@@ -487,115 +457,93 @@
       prevFreq[i] = curr;
     }
     flux /= n;
+    fluxAvg = lerp(fluxAvg, flux, 0.12);
 
-    const now = performance.now();
-    const adaptive = 0.025 + mid * 0.03 + high * 0.02;
-    onsetThreshold = lerp(onsetThreshold, adaptive, 0.02);
-
-    const onset = flux > onsetThreshold && (now - lastOnset > 110);
-
-    // pulso: dispara con ataques y decae, para "al ritmo"
+    const onset = flux > fluxAvg * 1.55 + 0.012;
     pulse *= 0.86;
-    shimmer *= 0.83;
 
     if (onset) {
-      lastOnset = now;
-      pulse = clamp(pulse + flux * 7 + low * 0.6 + 0.18, 0, 1);
-      shimmer = clamp(shimmer + high * 0.8 + flux * 4, 0, 1);
-
-      // pequeño kick a algunas palabras en cada ataque
-      const kickPower = 0.45 + pulse * 0.7;
-      items.forEach((it, idx) => {
-        if (Math.random() < (it.anchor ? 0.9 : 0.55)) it.kick(kickPower);
+      const power = clamp(flux * 9 + low * 0.8 + 0.12, 0, 1);
+      pulse = Math.max(pulse, power);
+      items.forEach(it => {
+        if (Math.random() < (it.anchor ? 0.92 : 0.55)) it.kick(0.35 + power * 0.9);
       });
     }
 
     smoothLevel += (level - smoothLevel) * (level > smoothLevel ? 0.24 : 0.08);
     lowEnergy += (low - lowEnergy) * 0.18;
-    midEnergy += (mid - midEnergy) * 0.18;
     highEnergy += (high - highEnergy) * 0.18;
-
-    const calm = smoothLevel < 0.05 && pulse < 0.05;
-
-    meter.style.width = (clamp(smoothLevel, 0, 1) * 100).toFixed(1) + '%';
-    stats.textContent = `nivel ${smoothLevel.toFixed(2)} / pulso ${pulse.toFixed(2)}`;
 
     return {
       level: smoothLevel,
       low: lowEnergy,
-      mid: midEnergy,
       high: highEnergy,
-      pulse: pulse,
-      shimmer: shimmer,
-      calm
+      pulse: clamp(pulse, 0, 1),
+      calm: smoothLevel < 0.05 && pulse < 0.04
     };
   }
 
-  async function activateMic() {
+  async function enableMic(){
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') await audioCtx.resume();
+
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false
+      }
+    });
+
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 2048;
+    analyser.smoothingTimeConstant = 0.12;
+
+    freqData = new Uint8Array(analyser.frequencyBinCount);
+    timeData = new Uint8Array(analyser.fftSize);
+    prevFreq = new Float32Array(analyser.frequencyBinCount);
+
+    const src = audioCtx.createMediaStreamSource(stream);
+    src.connect(analyser);
+    micActive = true;
+  }
+
+  function disableMic(){
+    if (stream) {
+      stream.getTracks().forEach(t => t.stop());
+      stream = null;
+    }
+    analyser = null;
+    freqData = null;
+    timeData = null;
+    prevFreq = null;
+    micActive = false;
+    smoothLevel = 0;
+    lowEnergy = 0;
+    highEnergy = 0;
+    pulse = 0;
+    fluxAvg = 0;
+  }
+
+  async function toggleMic(){
     try {
-      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') await audioCtx.resume();
-
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: false,
-          noiseSuppression: false,
-          autoGainControl: false
-        }
-      });
-
-      analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 2048;
-      analyser.smoothingTimeConstant = 0.18;
-
-      freqData = new Uint8Array(analyser.frequencyBinCount);
-      timeData = new Uint8Array(analyser.fftSize);
-      prevFreq = new Float32Array(analyser.frequencyBinCount);
-
-      const src = audioCtx.createMediaStreamSource(stream);
-      src.connect(analyser);
-
-      micActive = true;
-      micBtn.textContent = 'micrófono activo';
-      status.textContent = 'Activar o desactivar el micrófono';
+      if (!micActive) await enableMic();
+      else disableMic();
     } catch (err) {
       console.error(err);
-      status.textContent = 'Activar o desactivar el micrófono';
+      disableMic();
     }
   }
 
-  function render() {
+  function render(){
     frame++;
-    const audio = computeAudio();
-
-    drawBackground(audio);
-
-    // En mucha calma, se ven menos cosas; con música aparece más densidad
-    const calmOpacity = clamp(1 - audio.level * 1.4 - audio.pulse * 1.6, 0.08, 1);
-    const denseOpacity = clamp(audio.level * 1.2 + audio.pulse * 1.3, 0, 1);
-
-    // orden por capa
-    const sorted = [...items].sort((a,b) => a.layer - b.layer);
-    for (const it of sorted) {
-      it.update(audio);
-
-      ctx.save();
-      if (it.layer === 0) {
-        ctx.globalAlpha *= calmOpacity;
-      } else {
-        ctx.globalAlpha *= denseOpacity;
-      }
-      it.draw(audio);
-      ctx.restore();
-    }
-
-    glitchScreen(audio);
-
+    const audio = getAudio();
+    renderScene(audio);
+    presentScene(audio);
     requestAnimationFrame(render);
   }
 
-  micBtn.addEventListener('click', activateMic);
-  resetBtn.addEventListener('click', buildComposition);
+  button.addEventListener('click', toggleMic);
   window.addEventListener('resize', resize);
 
   resize();
