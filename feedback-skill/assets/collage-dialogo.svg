@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="700" viewBox="0 0 960 700" fill="none"><defs>
+ <pattern id="mesh" width="13" height="13" patternUnits="userSpaceOnUse"><path d="M0 0L13 13M13 0L0 13" stroke="#909497" stroke-width="1.1"/></pattern>
+ <pattern id="paperlines" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M0 7.5H8" stroke="#c8cacc" stroke-width=".7"/></pattern>
+ <clipPath id="cap"><rect x="0" y="0" width="118" height="177" rx="59"/></clipPath>
+ </defs><rect width="960" height="700" fill="#f5f5f4"/>
+ <rect x="74" y="80" width="340" height="482" fill="#f04d51"/>
+ <rect x="548" y="181" width="330" height="435" fill="#0bb0d2"/>
+ <g transform="translate(370 81) rotate(-12) scale(1.18)">
+  <rect x="0" y="0" width="227" height="418" rx="37" fill="#0d0f11" stroke="#414548" stroke-width="6"/>
+  <rect x="11" y="13" width="205" height="390" rx="28" fill="#fafafa"/>
+  <rect x="77" y="22" width="73" height="15" rx="8" fill="#15191b"/>
+  <path d="M35 62H100" stroke="#d4d7d8" stroke-width="3"/>
+  <path d="M34 107Q34 92 50 92H156Q174 92 174 109V161Q174 175 159 175H85L60 195V175H50Q34 175 34 160Z" fill="#f04d51"/>
+  <circle cx="75" cy="136" r="6" fill="white"/><circle cx="105" cy="136" r="6" fill="white"/><circle cx="135" cy="136" r="6" fill="white"/>
+  <path d="M193 231Q193 216 177 216H74Q57 216 57 232V284Q57 300 75 300H158L183 318V300Q193 300 193 286Z" fill="#0bb0d2"/>
+  <path d="M81 251H160M81 269H149" stroke="white" stroke-width="7" stroke-linecap="round"/>
+  <path d="M35 355H194" stroke="#d3d6d7" stroke-width="2"/>
+  <rect x="31" y="364" width="165" height="25" rx="12" fill="#fff" stroke="#c9cecf" stroke-width="2"/>
+  <path d="M168 377l11-5-4 11-2-5z" stroke="#1a1d1e" fill="none" stroke-width="2"/>
+ </g>
+ <path d="M135 196Q135 171 167 171H323Q351 171 351 196V264Q351 290 324 290H202L173 320V290H164Q135 290 135 262Z" fill="#111"/>
+ <circle cx="192" cy="231" r="11" fill="white"/><circle cx="239" cy="231" r="11" fill="white"/><circle cx="284" cy="231" r="11" fill="white"/>
+ <g transform="translate(800 188) scale(0.48)" fill="none" stroke="#F04D51" stroke-width="18"><path d="M0 97A97 97 0 0 0 -97 0"/><path d="M0 151A151 151 0 0 0 -151 0"/><path d="M0 205A205 205 0 0 0 -205 0"/></g>
+ <path d="M80 637H246M80 656H337" stroke="#111" stroke-width="4"/>
+</svg>
