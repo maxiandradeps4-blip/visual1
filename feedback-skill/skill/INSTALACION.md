@@ -5,7 +5,7 @@ de skills, instrucciones persistentes o proyectos con documentación de referenc
 
 ## Ruta general
 1. Descarga el ZIP del sitio, descomprímelo.
-2. Conserva la carpeta \`feedback-design\` con \`SKILL.md\`, \`references/\` y \`assets/\`.
+2. Conserva la carpeta `feedback-design` con `SKILL.md`, `references/` y `assets/`.
 3. Agrega la carpeta a la ruta de skills de tu entorno, si esa función está disponible,
    o adjunta todos sus archivos a un proyecto de ChatGPT u otro asistente compatible.
 4. Al encargar piezas, pide: **"Aplica Feedback Design Skill"**.

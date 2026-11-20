@@ -29,7 +29,7 @@ Cuando hay una pieza, PDF, PPT, Word, texto, tabla o imagen de referencia:
 ## Núcleo visual
 - Estética: **clean, moderna, dinámica, simple, sobria, profesional, fresca y editorial**.
 - Fondo principal blanco; contraste claro; amplio espacio negativo; composiciones asimétricas equilibradas.
-- Paleta: coral \`#F04D51\`, cian \`#0BB0D2\`, negro \`#111111\`, blanco \`#FFFFFF\`.
+- Paleta: coral `#F04D51`, cian `#0BB0D2`, negro `#111111`, blanco `#FFFFFF`.
 - Evita degradados, brillos, biseles, ilustraciones genéricas, exceso de iconos, sombras decorativas y ruido visual.
 - Títulos en **Baskerville MT Std Regular**, preferentemente caja mixta (no poner todos los titulares en mayúsculas).
 - Texto general, gráficos, ejes y cifras en **Akzidenz-Grotesk Pro** (Regular / Medium / Bold).
@@ -42,7 +42,7 @@ Cuando hay una pieza, PDF, PPT, Word, texto, tabla o imagen de referencia:
 - En representaciones de personas: preferir manos, espalda, perfiles parciales, escenas de trabajo y detalles. Evitar primeros planos de rostros salvo petición explícita.
 - No añadir imágenes de personas famosas, logos ajenos, fotografías ajenas no autorizadas o edificios falsos que pretendan ser reales.
 - Preferir referentes de Chile verificables para Calama, Antofagasta, Atacama, minería, patrimonio o culturas territoriales. No presentar una imagen generada como fotografía documental auténtica.
-- Transparencia real cuando se pida \`PNG transparente\`: no dibujar tablero de cuadros.
+- Transparencia real cuando se pida `PNG transparente`: no dibujar tablero de cuadros.
 - Sin textos sobre el collage cuando se pida solo imagen.
 - La composición debe contar una idea, no apilar símbolos sin relación.
 - Leer: [collage-editorial.md](references/collage-editorial.md).
