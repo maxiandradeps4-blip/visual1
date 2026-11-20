@@ -17,3 +17,38 @@
 @media(max-width:1050px){.brand-logo{width:177px}.brand-system{font-size:8px;padding-left:9px}.collage-gallery{padding-bottom:96px}.collage-gallery-grid{gap:12px}.collage-tile-foot h3{font-size:15px}}
 @media(max-width:720px){.brand-logo{width:155px}.brand-system{display:none}.poster.hero-art{margin-top:3px;aspect-ratio:960/700}.collage-gallery{padding:0 0 76px}.collage-gallery-grid{grid-template-columns:1fr;gap:24px}.collage-tile-foot h3{font-size:17px}.collage-image{aspect-ratio:960/620}.footer-logo{width:210px}}
 @media(prefers-reduced-motion:reduce){.collage-image img{transition:none}.collage-tile:hover img{transform:none}}
+
+
+/* Fotomontaje editorial, fotografía B/N, formas planas coral y cian, recortes sin difuminado */
+.photo-scene,.poster.hero-art.photo-scene,.collage-image.photo-scene,.prompt-visual.photo-scene{position:relative;overflow:hidden;isolation:isolate;background:#fff;aspect-ratio:960/700;}
+.photo-scene .scene-shape{display:block;position:absolute;pointer-events:none;z-index:1}
+.photo-scene .shape-a{background:#0BB0D2;left:1%;top:8%;width:59%;aspect-ratio:1;border-radius:50%}
+.photo-scene .shape-b{background:#F04D51;right:5%;top:12%;width:51%;height:71%}
+.photo-scene .shape-c{background:#0BB0D2;right:0;bottom:7%;width:28%;height:22%}
+.photo-scene .scene-photo,.hero-art.photo-scene .scene-photo,.collage-image.photo-scene .scene-photo,.prompt-visual.photo-scene .scene-photo{position:absolute;display:block;z-index:2;object-fit:cover;max-width:none;max-height:none;filter:grayscale(1) contrast(1.14);border:0;border-radius:0;transform:none;transition:none}
+.photo-scene[data-theme=hero] .scene-photo-1{left:11%;top:16%;width:44%;height:46%}
+.photo-scene[data-theme=hero] .scene-photo-2{left:25%;top:42%;width:40%;height:40%;z-index:4}
+.photo-scene[data-theme=hero] .scene-photo-3{left:54%;top:8%;width:39%;height:47%;z-index:3}
+.photo-scene[data-theme=hero] .scene-photo-4{left:68%;top:46%;width:29%;height:41%;z-index:5}
+.photo-scene[data-theme=press] .shape-a{left:-13%;top:11%;width:69%}
+.photo-scene[data-theme=press] .shape-b{right:2%;top:13%;width:54%;height:67%}
+.photo-scene[data-theme=press] .scene-photo-1{left:7%;top:14%;width:52%;height:54%}
+.photo-scene[data-theme=press] .scene-photo-2{left:35%;top:38%;width:58%;height:43%;z-index:4}
+.photo-scene[data-theme=press] .scene-photo-3{left:60%;top:5%;width:29%;height:31%;z-index:3}
+.photo-scene[data-theme=audio] .shape-a{left:-14%;top:5%;width:74%}
+.photo-scene[data-theme=audio] .shape-b{right:7%;top:14%;width:53%;height:66%}
+.photo-scene[data-theme=audio] .scene-photo-1{left:8%;top:15%;width:60%;height:59%;z-index:3}
+.photo-scene[data-theme=audio] .scene-photo-2{left:37%;top:49%;width:58%;height:36%;z-index:4}
+.photo-scene[data-theme=audio] .scene-photo-3{left:55%;top:11%;width:37%;height:38%}
+.photo-scene[data-theme=digital] .shape-a{left:-11%;top:-9%;width:64%}
+.photo-scene[data-theme=digital] .shape-b{right:5%;top:11%;width:52%;height:71%}
+.photo-scene[data-theme=digital] .scene-photo-1{left:15%;top:20%;width:39%;height:57%}
+.photo-scene[data-theme=digital] .scene-photo-2{left:46%;top:37%;width:44%;height:51%;z-index:4}
+.photo-scene[data-theme=digital] .scene-photo-3{left:51%;top:10%;width:43%;height:30%;z-index:3}
+.photo-scene .scene-arc{position:absolute;z-index:6;inset:0;width:100%;height:100%;pointer-events:none}
+.collage-tile:hover .collage-image.photo-scene img{transform:none}
+.prompt-visual.photo-scene{height:440px}
+.footer-links{display:flex;flex-direction:column;gap:12px}
+.footer-links a{font-size:12px;font-weight:800;white-space:nowrap}
+.footer-links a:hover{color:var(--coral)}
+@media(max-width:720px){.prompt-visual.photo-scene{height:355px}.footer-links{gap:13px}.collage-image.photo-scene{aspect-ratio:960/700}}

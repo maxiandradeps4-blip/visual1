@@ -28,3 +28,6 @@ No es una extensión ejecutable ni crea imágenes de manera autónoma fuera del 
 **Versión:** 1.0.0 · 20-11-2026
 
 Sitio de descarga: `https://maxiandradeps4-blip.github.io/visual1/feedback-skill/` (requiere GitHub Pages activo en `visual1`, rama `main`, carpeta raíz).
+
+## Collages fotográficos del sitio
+La portada, galería y ejemplos integran fotografía B/N de objetos de comunicación real, sin personas, con acentos coral y cian y arcos finos. Imágenes enlazadas desde Unsplash: el sitio requiere conexión. Fuentes y autores en [créditos](assets/CREDITOS-FOTOS.md). El logo SVG oficial original se conserva sin alteración.
