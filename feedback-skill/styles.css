@@ -52,3 +52,13 @@
 .footer-links a{font-size:12px;font-weight:800;white-space:nowrap}
 .footer-links a:hover{color:var(--coral)}
 @media(max-width:720px){.prompt-visual.photo-scene{height:355px}.footer-links{gap:13px}.collage-image.photo-scene{aspect-ratio:960/700}}
+
+/* Imágenes fotográficas integradas y autónomas; ninguna URL externa requerida. */
+.poster.hero-art.photo-frame{background:#fff;display:flex;align-items:center;justify-content:center;aspect-ratio:1.45;overflow:hidden;margin:0}
+.poster.hero-art.photo-frame img{display:block;width:100%;height:100%;object-fit:contain}
+.collage-image.photo-frame{background:#fff;aspect-ratio:1.68;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.collage-image.photo-frame img{display:block;width:100%;height:100%;object-fit:contain;transform:none;transition:transform .25s ease}
+.collage-tile:hover .collage-image.photo-frame img{transform:scale(1.018)}
+.prompt-visual.photo-frame{background:#fff;display:flex;justify-content:center;align-items:center;height:440px;overflow:hidden}
+.prompt-visual.photo-frame img{display:block;max-width:100%;width:100%;height:100%;object-fit:contain}
+@media(max-width:720px){.poster.hero-art.photo-frame{aspect-ratio:1.45}.collage-image.photo-frame{aspect-ratio:1.68}.prompt-visual.photo-frame{height:355px}}

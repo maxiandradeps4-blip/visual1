@@ -29,5 +29,7 @@ No es una extensión ejecutable ni crea imágenes de manera autónoma fuera del 
 
 Sitio de descarga: `https://maxiandradeps4-blip.github.io/visual1/feedback-skill/` (requiere GitHub Pages activo en `visual1`, rama `main`, carpeta raíz).
 
-## Collages fotográficos del sitio
-La portada, galería y ejemplos integran fotografía B/N de objetos de comunicación real, sin personas, con acentos coral y cian y arcos finos. Imágenes enlazadas desde Unsplash: el sitio requiere conexión. Fuentes y autores en [créditos](assets/CREDITOS-FOTOS.md). El logo SVG oficial original se conserva sin alteración.
+## Collages editoriales fotográficos del sitio
+La portada, galería y ejemplos utilizan cuatro archivos WebP **alojados en este mismo repositorio**, integrados y sin dependencia de servicios externos. Son fotomontajes conceptuales basados en recursos generados específicamente para esta página, con apariencia fotográfica B/N, color coral/cian, retícula y arcos. No contienen personas ni textos añadidos. No se presentan como fotografías documentales verificadas. Las referencias aportadas por el usuario orientaron el tratamiento gráfico y no se redistribuyeron públicamente.
+
+El logotipo SVG original se conserva sin cambios. Detalles de procedencia: [CREDITOS-FOTOS.md](assets/CREDITOS-FOTOS.md).

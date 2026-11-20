@@ -1,16 +1,12 @@
-# Créditos fotográficos
+# Procedencia y uso de los collages editoriales
 
-Imágenes alojadas en Unsplash y utilizadas en collage editorial del sitio. Son fotografías reales de medios, dispositivos e infraestructura de comunicación sin personas. **Los archivos de imagen no se incluyen en el ZIP.** Licencia: https://unsplash.com/license
+Las cuatro composiciones integradas al sitio fueron producidas para **Feedback Design Skill** a partir de imágenes conceptuales generadas mediante herramientas de imagen. El estilo toma como referencias los collages aportados para esta conversación, pero los archivos de referencia originales **no se redistribuyen**.
 
-| Tema | Fotógrafo/a | Fuente |
-|---|---|---|
-| Máquina de imprimir | Bank Phrom | https://unsplash.com/photos/printing-machine-Tzm3Oyu_6sk |
-| Periódicos | Carmen Laezza | https://unsplash.com/photos/a-stack-of-newspapers-sitting-on-top-of-a-table-OvNQgag9FAo |
-| Papel y prensa | Annie Spratt | https://unsplash.com/photos/a-pile-of-newspaper-with-a-lot-of-paper-on-top-of-it-gyk4E3NTNxU |
-| Micrófono | Gabriel Weyand | https://unsplash.com/photos/a-professional-microphone-in-a-recording-studio-lwR2vJy1zgs |
-| Consola de audio | Emily Lewis | https://unsplash.com/photos/a-sound-mixing-console-in-a-recording-studio-JMVDrEfp9Q0 |
-| Estudio de radio | Caroline Eymond Laritaz | https://unsplash.com/photos/a-recording-studio-with-a-mixing-console-and-microphone-xk1eI0hH84I |
-| Antena | Justin Zhu | https://unsplash.com/photos/a-tall-tower-with-a-cell-phone-on-top-of-it-fGcSWTQZN2E |
-| Teléfono móvil | Amjith S | https://unsplash.com/photos/a-black-smartphone-on-a-table-uSbF_7Ydx2Q |
+- `collage-comunicacion-foto.webp` — portada general: prensa, radio y comunicación digital.
+- `collage-prensa-foto.webp` — medios impresos y procesos de impresión.
+- `collage-audio-foto.webp` — radio, estudio y equipos de sonido.
+- `collage-digital-foto.webp` — teléfonos, antenas y redes.
 
-Los archivos fotográficos proporcionados por el usuario se usaron como referencias de estilo, no como fotografías para redistribuir en una web pública.
+Los recortes poseen apariencia fotográfica en blanco y negro, pero **no son evidencia documental ni fotografías auténticas de un lugar o empresa específica**. No muestran personas. Paleta y composiciones propias del sistema editorial Feedback.
+
+Los archivos se encuentran en `assets/` y se cargan localmente desde GitHub Pages; no hay enlaces externos de imágenes. El logo en `logo-feedback-original.svg` es el SVG original aportado para el sitio y se conserva sin alterar.
