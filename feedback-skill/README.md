@@ -27,7 +27,7 @@ No es una extensión ejecutable ni crea imágenes de manera autónoma fuera del 
 
 **Versión:** 1.0.0 · 20-11-2026
 
-Sitio de descarga: `https://maxiandradeps4-blip.github.io/visual1/feedback-skill/` (requiere GitHub Pages activo en `visual1`, rama `main`, carpeta raíz).
+Sitio: `https://maxiandradeps4-blip.github.io/visual1/feedback-skill/`. Se publica desde la rama `main` mediante [GitHub Actions](../../.github/workflows/feedback-pages.yml), conservando las demás rutas del repositorio `visual1`.
 
 ## Collages editoriales fotográficos del sitio
 La portada, galería y ejemplos utilizan cuatro archivos WebP **alojados en este mismo repositorio**, integrados y sin dependencia de servicios externos. Son fotomontajes conceptuales basados en recursos generados específicamente para esta página, con apariencia fotográfica B/N, color coral/cian, retícula y arcos. No contienen personas ni textos añadidos. No se presentan como fotografías documentales verificadas. Las referencias aportadas por el usuario orientaron el tratamiento gráfico y no se redistribuyeron públicamente.
