@@ -16,6 +16,13 @@ El sitio se organiza en **tres bloques**: introducción, guía interactiva de se
 
 **ZIP:** [`feedback-design-skill-v1.1.0.zip`](downloads/feedback-design-skill-v1.1.0.zip)
 
+## Versiones de descarga
+- **ChatGPT:** [feedback-design-skill-v1.1.0.zip](downloads/feedback-design-skill-v1.1.0.zip), versión existente.
+- **Claude.ai y Claude Code:** [feedback-design-skill-claude-v1.1.0.zip](downloads/feedback-design-skill-claude-v1.1.0.zip), adaptada con metadatos Claude, instrucciones de instalación, referencias, tokens y logo original SVG.
+- **Fuente de Claude:** [claude/feedback-design/SKILL.md](claude/feedback-design/SKILL.md).
+
+En Claude.ai se sube el ZIP completo desde Personalizar → Skills. En Claude Code se extrae la carpeta en `.claude/skills/feedback-design/`. El sitio ofrece ambas opciones sin reemplazar la versión ChatGPT.
+
 ## Cómo utilizarlo
 1. Descarga el ZIP y descomprímelo.
 2. Abre `feedback-design/SKILL.md` como instrucción principal.
