@@ -1,0 +1,82 @@
+/* Feedback Design Skill v1.2: utilidades editoriales, accesibilidad y recursos. */
+:root{--coral-text:#B92532;--cyan-text:#00677D;--toolbar-line:#D8DADC}
+.nav-toggle{display:none;background:transparent;border:1px solid #151515;gap:12px;align-items:center;padding:11px 15px;color:#111;font-size:13px;font-weight:750;cursor:pointer}
+.nav-toggle span{font-size:17px;line-height:1}
+/* Correcciones de contraste: los colores originales permanecen en grandes acentos. */
+.font-index,.manual-stage-top span:first-child,.manual-option.is-current,.manual-option.is-current .manual-n,.manual-option:hover,.manual-stage-bottom>span,.manual-column-title small,.manual-tag,.chart-kicker,.manual-copy:hover,.case-label,.font-heading .overline{color:var(--coral-text)}
+.token-note,.font-specimen small,.font-action>span,.manual-figure figcaption{color:#63686B}
+.button-primary{background:#BA2734;color:#fff}
+.button-primary:hover{background:#A3202B;color:#fff}
+.nav nav .nav-download{background:#111;color:#fff}
+@media(max-width:1100px){.nav{position:relative;z-index:30}.nav-toggle{display:inline-flex}.nav #site-nav{display:none;position:absolute;top:100%;right:0;left:0;background:#fff;box-shadow:0 15px 24px rgba(0,0,0,.08);border:1px solid #e1e2e3;padding:15px;flex-direction:column;align-items:stretch;gap:0;z-index:100}.nav #site-nav.is-open{display:flex!important}.nav #site-nav a,.nav #site-nav a:not(.nav-download){display:block!important;width:100%;padding:14px 12px;font-size:14px;border-bottom:1px solid #e9eaeb}.nav #site-nav a.nav-download{background:#111;color:#fff;border:0;margin-top:10px;text-align:center}}
+@media(max-width:720px){.nav-toggle{padding:8px 12px}.nav #site-nav{left:-1px;right:-1px;top:calc(100% - 1px)}}
+/* CTA de descarga gráfica dentro del manual */
+.manual-prompt .manual-download{display:inline-flex;align-items:center;gap:15px;margin:23px 0 0 22px;padding-bottom:8px;border-bottom:1px solid #111;font-size:13px;font-weight:800;color:#111}
+.manual-prompt .manual-download:hover{color:var(--coral-text);border-color:var(--coral-text)}
+@media(max-width:640px){.manual-prompt .manual-download{margin:18px 15px 0 0}}
+/* Constructor: retícula de formulario austera y accesible */
+.toolkit-area{border-top:2px solid #111;margin-top:100px;padding-top:28px}
+.toolkit-head,.case-head,.quality-intro{display:grid;grid-template-columns:1fr .72fr;gap:14%;align-items:end}
+.toolkit-head h3,.case-head h3,.quality-intro h2{font:400 clamp(38px,4.2vw,64px)/1.04 Georgia,'Times New Roman',serif;letter-spacing:-2px;margin:15px 0 0}
+.toolkit-head h3 em,.case-head h3 em,.quality-intro h2 em{color:#F04D51;font-weight:400}
+.toolkit-head>p,.case-head>p,.quality-intro>p{color:#65696B;font-size:15px;line-height:1.68;margin:0}
+.builder-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px;margin-top:39px;padding:30px 0;border-top:1px solid #D7D9DA;border-bottom:1px solid #D7D9DA}
+.builder-grid>label{display:flex;flex-direction:column;gap:10px;font-size:11px;color:#373A3C;font-weight:800;letter-spacing:.25px}
+.builder-grid select,.builder-grid input[type="text"]{width:100%;min-width:0;min-height:47px;border:1px solid #D4D6D7;background:#fff;color:#111;font-size:13px;padding:10px 12px;font-family:Arial,Helvetica,sans-serif}
+.builder-grid select:focus-visible,.builder-grid input:focus-visible,.builder-grid input[type="checkbox"]:focus-visible{outline:3px solid #0BB0D2;outline-offset:2px}
+.builder-rules{border:0;margin:0;padding:0;grid-column:1/-1;display:flex;gap:25px;align-items:center;flex-wrap:wrap}
+.builder-rules legend{font-weight:800;font-size:10px;letter-spacing:1px;margin-bottom:12px}
+.builder-rules label{display:flex;align-items:center;gap:8px;color:#55595C;font-size:12px;line-height:1.4;cursor:pointer}
+.builder-rules input{accent-color:#BA2734;width:16px;height:16px}
+.builder-output{background:#F5F5F4;margin-top:17px;padding:26px 30px 29px;border-left:3px solid #0BB0D2}
+.builder-output-meta{display:flex;justify-content:space-between;gap:15px;color:#666B6D;font-size:10px;font-weight:800;letter-spacing:1px}
+.builder-output p{font-size:15px;line-height:1.7;margin:20px 0 19px;white-space:pre-line}
+.builder-output button{background:#111;color:#fff;border:0;cursor:pointer;padding:14px 18px;font-size:12px;font-weight:800;display:inline-flex;gap:30px}
+.builder-output button:hover{background:#BA2734}
+#builder-status{font-size:12px;color:var(--coral-text);margin-left:14px}
+/* Casos de aplicación, sin cards estilizadas */
+.case-area{margin-top:110px}
+.case-head{margin-bottom:38px}
+.case-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:25px}
+.case-item{border-top:2px solid #111;padding-top:14px;min-width:0}
+.case-label{display:block;font-size:10px;letter-spacing:1.15px;font-weight:800;margin-bottom:18px}
+.case-before{background:#F4F5F4;min-height:206px;padding:23px 21px;overflow:hidden}
+.case-before strong,.case-after>span{font-size:10px;letter-spacing:.9px;font-weight:800;color:#727779}
+.case-before p{font-size:13px;line-height:1.65;margin:15px 0 0;color:#373B3D}
+.case-before-values p{font-variant-numeric:tabular-nums;font-size:14px;line-height:1.65}
+.case-after{border-top:1px solid #dedfe0;margin-top:9px;padding-top:12px}
+.case-after img{display:block;object-fit:contain;width:100%;height:auto;aspect-ratio:16/9;background:white}
+.case-after>span{display:block;margin-top:13px}
+/* Descargas, guías y control de calidad */
+.asset-downloads{border-top:1px solid #5E6163;margin-top:44px;padding-top:24px;display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:22px;align-items:start}
+.asset-downloads>div>span{font-size:10px;letter-spacing:1.4px;font-weight:800;color:#0BB0D2}
+.asset-downloads>div>p{font-size:12px;line-height:1.6;color:#B8BBBD;max-width:290px;margin-top:10px}
+.asset-downloads>a{border-bottom:1px solid #fff;padding:5px 0 17px;display:flex;justify-content:space-between;align-items:center;gap:12px;color:#fff;font-size:15px;line-height:1.5;font-weight:700}
+.asset-downloads>a:hover{color:#0BB0D2;border-color:#0BB0D2}
+.install-guides{margin-top:50px;border-top:1px solid #5E6163}
+.install-guides details{border-bottom:1px solid #5E6163;color:#fff}
+.install-guides summary{display:grid;grid-template-columns:170px 1fr 26px;gap:15px;align-items:center;cursor:pointer;padding:24px 2px;list-style:none}
+.install-guides summary::-webkit-details-marker{display:none}
+.install-guides summary>span:first-child{font-size:10px;color:#0BB0D2;font-weight:800;letter-spacing:1.2px}
+.install-guides summary>strong{font:400 25px/1.2 Georgia,'Times New Roman',serif}
+.install-guides summary>span:last-child{font-size:25px;font-weight:300;text-align:right}
+.install-guides details[open] summary>span:last-child{transform:rotate(45deg)}
+.details-body{padding:0 2px 28px 185px;max-width:990px}
+.details-body p{font-size:13px;line-height:1.8;color:#D5D7D8;margin:0 0 15px}
+.details-body b{color:#fff}
+.details-body code{color:#fff}
+.details-body a{color:#fff;font-size:12px;text-decoration:underline;text-underline-offset:4px}
+.details-body a:hover{color:#0BB0D2}
+.quality-area{padding-top:109px;padding-bottom:104px}
+.quality-checklist{display:grid;grid-template-columns:repeat(2,1fr);gap:0 7%;border-top:2px solid #111;margin-top:37px}
+.quality-checklist label{display:flex;align-items:center;gap:14px;padding:20px 3px;border-bottom:1px solid #D8DADC;font-size:14px;color:#252829;cursor:pointer;line-height:1.5}
+.quality-checklist input{width:20px;height:20px;flex-shrink:0;accent-color:#BA2734}
+.quality-bottom{display:flex;flex-wrap:wrap;align-items:center;gap:25px;margin-top:25px;font-size:12px;color:#656A6D}
+.quality-bottom>span{font-weight:800;color:#111}
+.quality-bottom button{border:0;border-bottom:1px solid #111;background:transparent;padding:7px 0;font-weight:800;cursor:pointer;color:#111}
+.quality-bottom button:hover{color:var(--coral-text);border-color:var(--coral-text)}
+.quality-bottom small{color:var(--coral-text);font-size:12px}
+@media(max-width:1100px){.builder-grid{grid-template-columns:repeat(2,1fr)}.asset-downloads{grid-template-columns:1fr 1fr}.asset-downloads>div{grid-column:1/-1}.case-grid{gap:13px}.case-before{padding:18px;min-height:220px}}
+@media(max-width:760px){.toolkit-head,.case-head,.quality-intro{grid-template-columns:1fr;gap:20px}.toolkit-area,.case-area{margin-top:70px}.builder-grid{gap:16px}.case-grid{grid-template-columns:1fr}.case-before{min-height:auto}.case-after img{height:auto}.asset-downloads{grid-template-columns:1fr}.asset-downloads>div{grid-column:auto}.install-guides summary{grid-template-columns:82px 1fr 26px}.install-guides summary>strong{font-size:21px}.details-body{padding:0 2px 26px 0}.quality-area{padding-top:80px;padding-bottom:80px}.quality-checklist{grid-template-columns:1fr}.quality-intro h2{font-size:50px}}
+@media(max-width:520px){.builder-grid{grid-template-columns:1fr}.builder-grid>label{min-width:0}.builder-rules{gap:12px}.builder-rules label{width:100%}.builder-output{padding:20px}.builder-output-meta{display:block}.builder-output-meta>span:last-child{display:block;margin-top:5px}.asset-downloads>a{font-size:14px}.install-guides summary{grid-template-columns:73px 1fr 21px;padding:20px 0}.install-guides summary>strong{font-size:19px}.quality-bottom{gap:13px}}
+@media(prefers-reduced-motion:reduce){.builder-output button,.nav-toggle,.asset-downloads a{transition:none!important}}
