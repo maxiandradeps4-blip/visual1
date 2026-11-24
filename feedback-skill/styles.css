@@ -131,3 +131,12 @@
 @media(max-width:820px){.manual{padding:77px 0 87px}.manual-head{grid-template-columns:1fr;gap:27px}.manual h2{font-size:clamp(55px,10vw,84px);letter-spacing:-3px}.manual-workspace{display:flex;flex-direction:column;gap:30px}.manual-rail-heading{padding-bottom:12px}.manual-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:17px}.manual-option{grid-template-columns:21px 1fr;gap:5px;padding:13px 0}.manual-name{font-size:23px}.manual-arrow,.manual-aside-note{display:none}.manual-criteria,.manual-prompt{grid-template-columns:1fr;gap:27px;margin-top:52px}.manual-stage-bottom h3{font-size:35px}}
 @media(max-width:550px){.manual-options{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:20px}.manual-stage-top{font-size:9px}.manual-stage-top span:last-child{text-align:right}.manual-stage-bottom{grid-template-columns:1fr auto;gap:6px}.manual-stage-bottom p{grid-column:1/-1;grid-row:2;font-size:13px}.manual-stage-bottom>span{grid-column:2;grid-row:1}.manual-rule-grid{grid-template-columns:1fr;gap:20px}.manual-rule p{margin-top:7px}.manual-prompt>div:nth-child(2)>p{font-size:14px}}
 @media(prefers-reduced-motion:reduce){.manual-option{transition:none}}
+
+
+/* Home: collage 20% mayor que su tamaño original, conservando la proporción. */
+.hero-grid .poster.hero-art.photo-frame{overflow:visible!important;position:relative}
+.hero-grid .poster.hero-art.photo-frame>img{transform:scale(1.2);transform-origin:center center;max-width:none}
+@media(max-width:720px){
+ .hero-grid .poster.hero-art.photo-frame{overflow:hidden!important}
+ .hero-grid .poster.hero-art.photo-frame>img{transform:scale(1.2)}
+}
