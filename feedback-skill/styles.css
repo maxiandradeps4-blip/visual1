@@ -62,3 +62,7 @@
 .prompt-visual.photo-frame{background:#fff;display:flex;justify-content:center;align-items:center;height:440px;overflow:hidden}
 .prompt-visual.photo-frame img{display:block;max-width:100%;width:100%;height:100%;object-fit:contain}
 @media(max-width:720px){.poster.hero-art.photo-frame{aspect-ratio:1.45}.collage-image.photo-frame{aspect-ratio:1.68}.prompt-visual.photo-frame{height:355px}}
+
+/* Portada Feedback: collage editorial especial 16:9, sin recortes ni deformación */
+.poster.hero-art.photo-frame{aspect-ratio:1672/941!important;background:#fff;overflow:hidden;margin:0}
+.poster.hero-art.photo-frame>img{display:block;width:100%;height:100%;object-fit:contain;object-position:center}

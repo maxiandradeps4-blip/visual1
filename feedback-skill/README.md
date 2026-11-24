@@ -33,3 +33,6 @@ Sitio: `https://maxiandradeps4-blip.github.io/visual1/feedback-skill/`. Se publi
 La portada, galería y ejemplos utilizan cuatro archivos WebP **alojados en este mismo repositorio**, integrados y sin dependencia de servicios externos. Son fotomontajes conceptuales basados en recursos generados específicamente para esta página, con apariencia fotográfica B/N, color coral/cian, retícula y arcos. No contienen personas ni textos añadidos. No se presentan como fotografías documentales verificadas. Las referencias aportadas por el usuario orientaron el tratamiento gráfico y no se redistribuyeron públicamente.
 
 El logotipo SVG original se conserva sin cambios. Detalles de procedencia: [CREDITOS-FOTOS.md](assets/CREDITOS-FOTOS.md).
+
+## Imagen principal del home — noviembre de 2026
+La portada utiliza `assets/collage-home-especial.webp`, collage conceptual original centrado en comunicación en Chile, medios, antenas y conversación pública. La imagen es generada digitalmente (no documental), no contiene rostros protagónicos y se conserva en el repositorio para carga local rápida. El mismo recurso se utiliza en el ejemplo interactivo de collage. La galería y el logo SVG original se mantienen sin cambios.

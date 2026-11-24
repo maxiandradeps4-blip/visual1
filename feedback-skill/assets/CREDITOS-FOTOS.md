@@ -10,3 +10,6 @@ Las cuatro composiciones integradas al sitio fueron producidas para **Feedback D
 Los recortes poseen apariencia fotográfica en blanco y negro, pero **no son evidencia documental ni fotografías auténticas de un lugar o empresa específica**. No muestran personas. Paleta y composiciones propias del sistema editorial Feedback.
 
 Los archivos se encuentran en `assets/` y se cargan localmente desde GitHub Pages; no hay enlaces externos de imágenes. El logo en `logo-feedback-original.svg` es el SVG original aportado para el sitio y se conserva sin alterar.
+
+## Portada especial
+`collage-home-especial.webp`: fotomontaje conceptual generado para la portada (2026-11-24), con referencias visuales a la ciudad de Santiago, medios y telecomunicaciones; no debe presentarse como fotografía documental auténtica. Optimizado en WebP y alojado directamente en `assets/`.
