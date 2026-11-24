@@ -49,3 +49,9 @@ El logotipo SVG original se conserva sin cambios. Detalles de procedencia: [CRED
 
 ## Imagen principal del home — noviembre de 2026
 La portada utiliza `assets/collage-home-especial.webp`, collage conceptual original centrado en comunicación en Chile, medios, antenas y conversación pública. La imagen es generada digitalmente (no documental), no contiene rostros protagónicos y se conserva en el repositorio para carga local rápida. El mismo recurso se utiliza en el ejemplo interactivo de collage. La galería y el logo SVG original se mantienen sin cambios.
+
+## Tipografías y licencias
+La web incorpora una sección de acceso a tipografías oficiales. Baskerville MT Std (titulares) y Akzidenz-Grotesk Pro (cuerpo y datos) son comerciales: no se incluyen sus archivos OTF/TTF. Consulta los distribuidores:
+- [Monotype Baskerville / MyFonts](https://www.myfonts.com/es/collections/baskerville-mt-font-monotype-imaging) — comprobar edición MT Std.
+- [Akzidenz-Grotesk Pro / MyFonts](https://www.myfonts.com/collections/akzidenz-grotesk-font-berthold) — seleccionar estilos Pro licenciados.
+Las muestras del sitio emplean tipografías de reemplazo y están rotuladas como aproximaciones.

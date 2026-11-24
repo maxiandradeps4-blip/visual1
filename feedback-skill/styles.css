@@ -143,3 +143,33 @@
  .hero-grid .poster.hero-art.photo-frame{overflow:hidden!important}
  .hero-grid .poster.hero-art.photo-frame>img{transform:scale(1.2)}
 }
+
+/* Tipografía Feedback: fichas editoriales y acceso a licencias oficiales */
+.font-section{background:#fff;padding:110px 0 115px;border-top:1px solid #e7e8e8}
+.font-heading{display:grid;grid-template-columns:1.05fr .78fr;gap:12%;align-items:end;margin-bottom:50px}
+.font-heading h2{font:400 clamp(63px,6.6vw,100px)/.96 Georgia,'Times New Roman',serif;letter-spacing:-4px;margin:22px 0 0}
+.font-heading h2 em{font-weight:400;color:#F04D51}
+.font-heading-copy p{font-size:16px;line-height:1.7;color:#63676a;margin:0 0 22px}
+.font-heading-copy>span,.font-index,.font-action>span,.font-specimen small{font-size:10px;letter-spacing:1.25px;font-weight:800}
+.font-heading-copy>span{color:#989b9d}
+.font-list{border-top:2px solid #111}
+.font-item{display:grid;grid-template-columns:.86fr 1fr .51fr;gap:5%;align-items:center;border-bottom:1px solid #d9dcdd;padding:39px 0 43px}
+.font-index{color:#F04D51}
+.font-metadata h3{font:400 clamp(28px,2.7vw,40px)/1.12 Georgia,'Times New Roman',serif;letter-spacing:-.8px;margin:16px 0}
+.font-metadata p{color:#606467;line-height:1.7;font-size:13px;max-width:340px;margin:0}
+.font-specimen{min-height:155px;display:flex;flex-direction:column;justify-content:center;gap:15px;overflow:hidden}
+.font-specimen>span{color:#111}
+.font-specimen-serif>span{font:400 clamp(35px,3.7vw,60px)/.99 Georgia,'Times New Roman',serif;letter-spacing:-1.7px}
+.font-specimen-serif em{font-weight:400;color:#F04D51}
+.font-specimen-sans>span{font:700 clamp(28px,2.8vw,46px)/1.08 Arial,Helvetica,sans-serif;letter-spacing:-1.2px}
+.font-specimen small{color:#a2a5a6;font-size:9px;line-height:1.6}
+.font-action{display:flex;flex-direction:column;align-items:flex-start;gap:18px}
+.font-action>span{color:#898d8f}
+.font-action>a{display:flex;align-items:center;justify-content:space-between;gap:15px;width:100%;padding:15px 0 10px;border-bottom:2px solid #F04D51;font-size:13px;font-weight:800;transition:color .2s}
+.font-action>a:hover{color:#F04D51}
+.font-action>a>span{font-size:18px;font-weight:400}
+.font-action small{font-size:11px;color:#8e9193;line-height:1.55}
+.font-legal{font-size:12px;line-height:1.7;color:#767a7d;max-width:1000px;margin:23px 0 0}
+.font-legal strong{color:#111}
+@media(max-width:1110px){.font-item{grid-template-columns:1fr 1fr;column-gap:6%;row-gap:20px}.font-action{grid-column:1/-1;flex-direction:row;align-items:center;gap:20px}.font-action>a{width:210px;flex-shrink:0}.font-action small{max-width:350px}}
+@media(max-width:760px){.font-section{padding:77px 0 80px}.font-heading{grid-template-columns:1fr;gap:26px}.font-heading h2{font-size:clamp(52px,10vw,80px);letter-spacing:-2.5px}.font-item{grid-template-columns:1fr;padding:29px 0 34px;gap:14px}.font-specimen{min-height:auto;padding:10px 0}.font-specimen-serif>span{font-size:48px}.font-specimen-sans>span{font-size:36px}.font-action{grid-column:auto;display:flex;flex-direction:column;align-items:flex-start;gap:12px}.font-action>a{width:min(100%,350px)}}
