@@ -1,6 +1,7 @@
 # Novedades · Feedback Design Skill
 
 ## v1.2.0 · Noviembre 2026
+- Se publicó la aplicación de Feedback Design Skill al informe institucional «Comunicación y confianza»; el ejemplo de Word anterior se reemplazó en la web por el rediseño final editable, preservando el archivo original de muestra en el repositorio y manteniendo la plantilla vacía.
 - El Word institucional se presenta como una sección editorial propia, con portada ampliada, estructura de cuatro páginas y dos descargas; se mantiene Word en el generador de instrucciones.
 - Se añadió un ejemplo completo de informe Word «Comunicación y confianza», con todos los textos rellenados y datos, fuentes y responsables expresamente simulados. La plantilla original sin completar sigue disponible.
 - Plantilla Word institucional A4, editable, con portada, resumen, indicadores y próximos pasos; rediseñada en noviembre de 2026 con composición editorial asimétrica, titulares protagonistas, retícula y contrastes sobrios. Su contenido de ejemplo original se conserva.
