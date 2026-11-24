@@ -13,7 +13,7 @@
 </main><script src="sprites.js"></script><script>
 'use strict';
 const $=id=>document.getElementById(id), c=$('game'), g=c.getContext('2d'), W=960,H=540;
-const img=new Image();let hd=false;img.onload=()=>{hd=img.naturalWidth===1680&&img.naturalHeight===1216;document.getElementById('loadAtlas').textContent=hd?'Sprites HD ✓':'Cargar sprites HD';};try{img.src=localStorage.getItem('fan-dance-atlas-hd')||'atlas-hd.png';}catch(e){img.src='atlas-hd.png';}img.onerror=()=>{if(img.src!==window.FAN_SPRITES)img.src=window.FAN_SPRITES||'';};
+const img=new Image();let hd=false;img.onload=()=>{hd=img.naturalWidth===1680&&img.naturalHeight===1216;document.getElementById('loadAtlas').textContent=hd?'Sprites HD ✓':'Cargar sprites HD';};img.onerror=()=>{if(img.src!==window.FAN_SPRITES&&window.FAN_SPRITES)img.src=window.FAN_SPRITES;};img.src='atlas-hd.png?v=4244cd24';
 const arrows=['←','↓','↑','→'], colors=['#ff4f77','#10c4d4','#10c4d4','#ff4f77'], keys={ArrowLeft:0,ArrowDown:1,ArrowUp:2,ArrowRight:3,a:0,s:1,w:2,d:3};
 let mode='normal', playing=false, starting=false, muted=false, audio=null, master=null, noise=null, t0=0, step=0, notes=[], score=0, combo=0, maxCombo=0, perfect=0, good=0, miss=0, best=0, feedback='', feedbackAt=-100, pose=-1, poseAt=-100, pressed=[-100,-100,-100,-100], last=0;
 const beat=.5, length=48, endAt=49, hitY=432, speed=186, laneX= [532,638,744,850], frameSets=[[2,3],[8,9],[6,7],[4,5],[10,11]];
