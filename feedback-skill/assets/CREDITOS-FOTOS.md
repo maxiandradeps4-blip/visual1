@@ -13,3 +13,6 @@ Los archivos se encuentran en `assets/` y se cargan localmente desde GitHub Page
 
 ## Portada especial
 `collage-home-especial.webp`: fotomontaje conceptual generado para la portada (2026-11-24), con referencias visuales a la ciudad de Santiago, medios y telecomunicaciones; no debe presentarse como fotografía documental auténtica. Optimizado en WebP y alojado directamente en `assets/`.
+
+## Estrategia y planificación — ajedrez
+`collage-estrategia-ajedrez.webp`: collage conceptual sintético creado para la galería Feedback (noviembre de 2026). Representa una mano moviendo una pieza de ajedrez, una ciudad y recursos de planificación; no debe presentarse como fotografía documental. Exportado desde el PNG original en WebP con transparencia, sin alterar el diseño.
