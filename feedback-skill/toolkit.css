@@ -83,3 +83,8 @@
 /* Las vistas de PPT, portadilla y diagramas se muestran completas, sin recortes */
 #prompt-visual.photo-frame{background:#fff}
 #prompt-visual.photo-frame img{width:100%;height:100%;object-fit:contain}
+
+/* Etiquetas pequeñas: contraste AA sin modificar los acentos editoriales originales. */
+.overline{color:var(--coral-text)}
+.hero-footnote{color:#5D6063}
+.swatch.coral{color:#111}
