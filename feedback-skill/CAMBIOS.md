@@ -1,6 +1,7 @@
 # Novedades · Feedback Design Skill
 
 ## v1.2.0 · Noviembre 2026
+- Plantilla Word institucional A4, editable, con portada, resumen, indicadores y próximos pasos; acceso desde Aplicaciones y Descargas.
 - Sitio con menú móvil y ajustes de contraste para etiquetas y botones.
 - Generador de instrucciones que cambia según pieza, formato, tipo de entrega y restricciones.
 - Ejemplos correspondientes a cada pestaña de aplicación y comparaciones **demostrativas**.

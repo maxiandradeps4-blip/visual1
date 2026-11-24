@@ -21,15 +21,16 @@
   const exact=document.getElementById('builder-exact');
   const noFaces=document.getElementById('builder-no-faces');
   const sources=document.getElementById('builder-sources');
-  const names={presentacion:'presentación',collage:'collage editorial',grafico:'gráfico de datos',portadilla:'portadilla',diagrama:'diagrama'};
+  const names={presentacion:'presentación',word:'documento institucional de Word',collage:'collage editorial',grafico:'gráfico de datos',portadilla:'portadilla',diagrama:'diagrama'};
   const descriptions={
+    word:'Crea o rediseña un documento A4 con portada, encabezados, pie de página, estilos de título, tablas y párrafos nativos de Word. Aplica retícula editorial, jerarquías claras y márgenes amplios. Preserva las fuentes y el contenido íntegro, sin inventar información institucional.',
     presentacion:'Trabaja con una retícula editorial contemporánea, jerarquías claras, espacios blancos y composición profesional. Mantén la cantidad y el orden de láminas salvo una indicación explícita.',
     collage:'Integra fotografía principalmente en blanco y negro con recortes precisos, geometrías coral #F04D51 y cian #0BB0D2. Une los elementos mediante una idea, sin agregar textos o rostros no solicitados.',
     grafico:'Elige el tipo de visualización según la pregunta, respeta escalas y ejes, mantén cada observación e identifica las unidades y fuentes. Usa coral y cian solo para comparaciones justificadas.',
     portadilla:'Da protagonismo a un título en caja mixta, una flecha geométrica grande cuando corresponda, retícula asimétrica y amplio espacio negativo.',
     diagrama:'Organiza etapas y actores con jerarquía editorial; usa solamente conexiones y sentidos de flecha presentes en la fuente.'
   };
-  const defaults={presentacion:'PPTX editable',collage:'PNG transparente',grafico:'SVG editable',portadilla:'PPTX editable',diagrama:'SVG editable'};
+  const defaults={presentacion:'PPTX editable',word:'DOCX editable',collage:'PNG transparente',grafico:'SVG editable',portadilla:'PPTX editable',diagrama:'SVG editable'};
   function updateOutput(){
     const type=piece.value;
     const subject=topic.value.trim()||'el tema o material que adjunto';
@@ -38,13 +39,13 @@
     if(exact.checked)notes.push('Conserva literalmente textos, cifras, etiquetas, orden y fuentes; no inventes, resumas ni omitas información.');
     if(noFaces.checked)notes.push('Evita rostros protagonistas; prioriza manos, detalles o personas de espalda cuando corresponda.');
     if(sources.checked)notes.push('Si utilizas referencias territoriales, fuentes o imágenes, comprueba su procedencia y no presentes contenido sintético como registro documental.');
-    if(mode==='PPTX editable'||mode==='SVG editable')notes.push('Construye textos, gráficos y formas editables, evitando láminas planas salvo fotografías.');
+    if(mode==='PPTX editable'||mode==='SVG editable'||mode==='DOCX editable')notes.push('Construye textos, gráficos y formas editables, evitando láminas planas salvo fotografías.');
     else notes.push('Exporta al formato solicitado y no declares el resultado editable si se trata de una imagen plana.');
     result.textContent=`Aplica Feedback Design Skill. Diseña ${names[type]} sobre ${subject}, en formato ${ratio.value}, con entrega ${mode}. ${descriptions[type]} ${notes.join(' ')} Usa Baskerville MT Std y Akzidenz-Grotesk Pro cuando las fuentes estén legalmente disponibles; en caso contrario, informa la sustitución tipográfica.`;
     if(copied)copied.textContent='';
   }
   if(form&&piece&&ratio&&output&&topic&&result){
-    piece.addEventListener('change',()=>{output.value=defaults[piece.value];updateOutput();});
+    piece.addEventListener('change',()=>{output.value=defaults[piece.value];if(piece.value==='word')ratio.value='A4 vertical';else if(ratio.value==='A4 vertical')ratio.value='16:9';updateOutput();});
     form.addEventListener('input',updateOutput);
     form.addEventListener('change',updateOutput);
     form.addEventListener('submit',e=>e.preventDefault());

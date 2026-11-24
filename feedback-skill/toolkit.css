@@ -88,3 +88,21 @@
 .overline{color:var(--coral-text)}
 .hero-footnote{color:#5D6063}
 .swatch.coral{color:#111}
+
+/* Documento institucional Feedback: vista previa A4 y descarga editorial */
+.word-feature{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(280px,.85fr);gap:8%;align-items:center;border-top:2px solid #111;border-bottom:1px solid #D9DCDE;padding:44px 0 54px;margin-top:100px}
+.word-feature-copy h3{font:400 clamp(39px,4.4vw,67px)/.99 Georgia,'Times New Roman',serif;letter-spacing:-2.5px;margin:20px 0 25px}
+.word-feature-copy h3 em{font-weight:400;color:#F04D51}
+.word-feature-copy>p{max-width:540px;font-size:15px;color:#555B5F;line-height:1.75}
+.word-feature-copy .word-feature-note{font-size:11px;color:#777D80;line-height:1.65;margin-top:21px}
+.word-feature-link{display:inline-flex;gap:35px;align-items:center;justify-content:space-between;border-bottom:2px solid #F04D51;padding:13px 1px 10px 0;margin-top:21px;font-weight:800;font-size:14px}
+.word-feature-link:hover{color:var(--coral-text,#B42B37)}
+.word-feature-preview{margin:0;justify-self:center;width:min(100%,365px)}
+.word-feature-preview img{display:block;width:100%;height:auto;border:1px solid #E1E3E4;box-shadow:0 10px 31px rgba(0,0,0,.06)}
+.word-feature-preview figcaption{text-align:right;margin-top:12px;font-size:10px;color:#75797D;font-weight:800;letter-spacing:1px}
+.asset-downloads{grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.asset-downloads>div{grid-column:1/-1}
+.asset-downloads>div>p{max-width:100%}
+#prompt-visual[data-kind="word"] img{width:auto;max-width:100%;height:100%;margin-inline:auto;object-fit:contain}
+@media(max-width:850px){.word-feature{grid-template-columns:1fr;gap:35px}.word-feature-preview{justify-self:start;max-width:310px}.asset-downloads{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:550px){.word-feature{margin-top:69px;padding:29px 0 40px}.word-feature-copy h3{font-size:47px}.word-feature-preview{max-width:260px}.asset-downloads{grid-template-columns:1fr}}
