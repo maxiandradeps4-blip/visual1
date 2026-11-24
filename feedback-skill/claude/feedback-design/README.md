@@ -1,4 +1,4 @@
-# Feedback Design Skill · Claude · v1.1.0
+# Feedback Design Skill · Claude · v1.2.0
 
 Versión de la identidad gráfica Feedback preparada para **Claude.ai** y **Claude Code**.
 
