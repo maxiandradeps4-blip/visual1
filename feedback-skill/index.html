@@ -5,15 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#ffffff">
 <meta name="description" content="Descarga Feedback Design Skill: identidad gráfica, collage editorial, presentaciones y diagramas en el estilo Feedback.">
-<title>Feedback Design Skill — Descarga y guía</title>
+<title>Feedback Design Skill · Sistema editorial y recursos editables</title>
+<link rel="canonical" href="https://maxiandradeps4-blip.github.io/visual1/feedback-skill/">
+<meta name="robots" content="index,follow">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_CL">
+<meta property="og:site_name" content="Feedback Design Skill">
+<meta property="og:title" content="Feedback Design Skill · Diseñar como Feedback">
+<meta property="og:description" content="Identidad editorial, gráficos, collage, plantillas editables y skills para ChatGPT y Claude.">
+<meta property="og:url" content="https://maxiandradeps4-blip.github.io/visual1/feedback-skill/">
+<meta property="og:image" content="https://maxiandradeps4-blip.github.io/visual1/feedback-skill/assets/collage-home-especial.webp">
+<meta property="og:image:alt" content="Collage editorial Feedback sobre comunicación en Chile">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Feedback Design Skill">
+<meta name="twitter:description" content="Diseño editorial aplicado a gráficos, collages y presentaciones editables.">
+<meta name="twitter:image" content="https://maxiandradeps4-blip.github.io/visual1/feedback-skill/assets/collage-home-especial.webp">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg">
 <link rel="stylesheet" href="./styles.css">
+<link rel="stylesheet" href="./toolkit.css">
 </head>
 <body>
 <a class="skip" href="#contenido">Ir al contenido</a>
 <header class="nav shell">
   <a class="brand" href="#inicio" aria-label="Feedback Design Skill — inicio"><img class="brand-logo" src="./assets/logo-feedback-display.svg" alt="Feedback" width="228" height="45" /><span class="brand-system">DESIGN SKILL</span></a>
-  <nav aria-label="Navegación principal">
+  <button class="nav-toggle" id="nav-toggle" aria-controls="site-nav" aria-expanded="false" type="button">Menú <span aria-hidden="true">☰</span></button>
+  <nav id="site-nav" aria-label="Navegación principal">
     <a href="#sistema">Sistema</a><a href="#collages">Collages</a><a href="#tipografias">Tipografías</a><a href="#guia">Gráficos</a><a href="#explorar">Aplicaciones</a>
     <a class="nav-download" href="#instalacion">Descargas <span aria-hidden="true">↘</span></a>
   </nav>
@@ -21,7 +37,7 @@
 
 <main id="contenido">
 <section class="hero shell" id="inicio" aria-labelledby="hero-title">
-  <div class="hero-kicker"><span class="kicker-dot"></span> SISTEMA GRÁFICO · VERSIÓN 1.1.0 <span class="kicker-date">24 NOV 2026</span></div>
+  <div class="hero-kicker"><span class="kicker-dot"></span> SISTEMA GRÁFICO · VERSIÓN 1.2.0 <span class="kicker-date">24 NOV 2026</span></div>
   <div class="hero-grid">
     <div class="hero-copy">
       <p class="pretitle">Un lenguaje visual. Infinitas aplicaciones.</p>
@@ -31,7 +47,7 @@
   <a class="button button-primary" href="./downloads/feedback-design-skill-v1.1.0.zip" download><span>Para ChatGPT</span><span aria-hidden="true">↘</span></a>
   <a class="button button-outline" href="./downloads/feedback-design-skill-claude-v1.1.0.zip" download><span>Para Claude</span><span aria-hidden="true">↘</span></a>
 </div>
-      <p class="hero-footnote">Descarga gratuita · Dos versiones · <a href="./skill/SKILL.md">Leer las instrucciones ↗</a></p>
+      <p class="hero-footnote">Recursos editables · Dos versiones · <a href="./skill/SKILL.md">Leer las instrucciones ↗</a></p>
     </div>
     <figure class="poster hero-art photo-frame"><img src="./assets/collage-home-especial.webp" alt="Collage editorial de comunicación en Chile: antenas, prensa, micrófono, teléfono y paisaje urbano de Santiago" width="1672" height="941" fetchpriority="high" decoding="async" /></figure>
   </div>
@@ -122,7 +138,7 @@
 </div></div>
 <div class="manual-prompt">
 <div class="manual-column-title"><small>APLICAR LA SKILL</small><h3>Una instrucción<br>para empezar.</h3></div>
-<div><p id="manual-prompt-text">Aplica Feedback Design Skill. Convierte mis datos en un gráfico de barras editable. Conserva categorías, cifras, unidades, orden y fuente. Usa eje desde cero, retícula limpia, Akzidenz-Grotesk Pro y un acento coral para el dato destacado. No inventes valores.</p><button id="copy-chart-prompt" class="manual-copy" type="button">Copiar instrucción <span aria-hidden="true">↗</span></button><span id="manual-copy-status" aria-live="polite" role="status"></span></div>
+<div><p id="manual-prompt-text">Aplica Feedback Design Skill. Convierte mis datos en un gráfico de barras editable. Conserva categorías, cifras, unidades, orden y fuente. Usa eje desde cero, retícula limpia, Akzidenz-Grotesk Pro y un acento coral para el dato destacado. No inventes valores.</p><button id="copy-chart-prompt" class="manual-copy" type="button">Copiar instrucción <span aria-hidden="true">↗</span></button><a id="manual-download-svg" class="manual-download" href="./assets/grafico-editorial-barras.svg" download="feedback-grafico-barras.svg">Descargar SVG <span aria-hidden="true">↘</span></a><span id="manual-copy-status" aria-live="polite" role="status"></span></div>
 </div>
 <p class="manual-endnote"><strong>Regla Feedback.</strong> El diseño cambia; los datos no. Se conservan valores, unidades, fechas, categorías y fuentes. Las muestras anteriores son ejemplos de estilo con datos simulados.</p>
 </div></section>
@@ -135,9 +151,33 @@
     <button type="button" class="app-tab" role="tab" id="tab-diagram" aria-selected="false" aria-controls="prompt-panel" data-prompt="diagram">Diagrama</button>
   </div>
   <div class="prompt-layout" id="prompt-panel" role="tabpanel" aria-labelledby="tab-collage">
-    <div class="prompt-visual photo-frame" id="prompt-visual" data-kind="collage" aria-hidden="true"><img id="prompt-art" src="./assets/collage-home-especial.webp" alt="" width="1672" height="941" loading="lazy" /></div>
+    <div class="prompt-visual photo-frame" id="prompt-visual" data-kind="collage" aria-hidden="true"><img id="prompt-art" src="./assets/collage-home-especial.webp" alt="" width="1672" height="941" loading="lazy" decoding="async" /></div>
     <div class="prompt-info"><span class="prompt-label">EJEMPLO DE INSTRUCCIÓN</span><h3 id="prompt-title">Collage editorial</h3><p>Un punto de partida, listo para copiar y personalizar.</p><div class="prompt-text" id="prompt-text">Aplica Feedback Design Skill. Haz un collage editorial sobre minería y desarrollo regional en Calama, en 16:9, con PNG transparente. Usa referencias reales verificables, fotografía en blanco y negro, recortes limpios, coral y cian. Sin texto ni rostros en primer plano.</div><button class="copy-button" id="copy-prompt" type="button">Copiar instrucción <span aria-hidden="true">↗</span></button><p class="copy-status" id="copy-status" aria-live="polite"></p></div>
   </div>
+
+<div class="toolkit-area" id="crear-prompt" aria-labelledby="toolkit-title">
+  <div class="toolkit-head">
+    <div><span class="overline">HERRAMIENTA / INSTRUCCIONES</span><h3 id="toolkit-title">Tu encargo,<br><em>en lenguaje Feedback.</em></h3></div>
+    <p>Construye una instrucción precisa sin partir de cero. Las opciones solo cambian el pedido: nunca los datos originales.</p>
+  </div>
+  <form id="prompt-builder" class="builder-grid" autocomplete="off">
+    <label>Tipo de pieza<select id="builder-piece" name="pieza"><option value="presentacion">Presentación PPT</option><option value="collage">Collage editorial</option><option value="grafico">Gráfico de datos</option><option value="portadilla">Portadilla</option><option value="diagrama">Diagrama</option></select></label>
+    <label>Formato<select id="builder-ratio" name="formato"><option value="16:9">16:9 · Horizontal</option><option value="1:1">1:1 · Cuadrado</option><option value="9:16">9:16 · Vertical</option><option value="4:5">4:5 · Editorial vertical</option></select></label>
+    <label>Entrega<select id="builder-output" name="entrega"><option value="PPTX editable">PPTX editable</option><option value="SVG editable">SVG editable</option><option value="PNG transparente">PNG transparente</option><option value="PNG">PNG</option></select></label>
+    <label>Tema o contenido principal<input id="builder-topic" name="tema" type="text" maxlength="120" placeholder="Ej. Estrategia y confianza en Chile"></label>
+    <fieldset class="builder-rules"><legend>Condiciones</legend><label><input id="builder-exact" type="checkbox" checked> Mantener textos y cifras originales</label><label><input id="builder-no-faces" type="checkbox"> Sin rostros protagonistas</label><label><input id="builder-sources" type="checkbox" checked> Referencias verificables</label></fieldset>
+  </form>
+  <div class="builder-output"><div class="builder-output-meta"><span>INSTRUCCIÓN GENERADA</span><span>LISTA PARA COPIAR</span></div><p id="builder-result" aria-live="polite"></p><button type="button" id="builder-copy">Copiar instrucción <span aria-hidden="true">↗</span></button><span id="builder-status" role="status" aria-live="polite"></span></div>
+</div>
+
+<div class="case-area" aria-labelledby="cases-title">
+  <div class="case-head"><div><span class="overline">DEL MATERIAL A LA PIEZA</span><h3 id="cases-title">Misma información.<br><em>Otra jerarquía.</em></h3></div><p>Casos demostrativos, construidos con contenido de ejemplo. No corresponden a documentos ni investigaciones reales de clientes.</p></div>
+  <div class="case-grid">
+    <article class="case-item"><span class="case-label">01 / PRESENTACIÓN</span><div class="case-before"><strong>ANTES / TEXTO SIN COMPOSICIÓN</strong><p><b>Situación actual</b><br>Texto de ejemplo sin jerarquía, organizado en un único bloque.<br><br><b>Hallazgo principal</b><br>Información sin estructura visual.</p></div><div class="case-after"><img src="./assets/vista-slide3.webp" loading="lazy" width="1000" height="563" alt="Ejemplo de diapositiva editorial de texto en tres columnas"><span>DESPUÉS / SISTEMA EDITORIAL</span></div></article>
+    <article class="case-item"><span class="case-label">02 / DATOS</span><div class="case-before case-before-values"><strong>ANTES / DATOS SIMULADOS</strong><p>Categoría A = 84<br>Categoría B = 67<br>Categoría C = 54<br>Categoría D = 42<br>Categoría E = 28</p></div><div class="case-after"><img src="./assets/grafico-editorial-barras.svg" loading="lazy" width="880" height="520" alt="Gráfico de barras Feedback con los mismos cinco valores simulados"><span>DESPUÉS / COMPARACIÓN LEGIBLE</span></div></article>
+    <article class="case-item"><span class="case-label">03 / COLLAGE</span><div class="case-before"><strong>ANTES / ENCARGO CONCEPTUAL</strong><p>Comunicar estrategia y planificación mediante una mano y una pieza de ajedrez.<br><br>Fotografía en blanco y negro. Acentos coral y cian. Sin texto integrado.</p></div><div class="case-after"><img src="./assets/collage-estrategia-ajedrez.webp" loading="lazy" width="1672" height="941" alt="Collage Feedback: mano sobre pieza de ajedrez, fotografías en blanco y negro y formas coral/cian"><span>DESPUÉS / COLLAGE CONCEPTUAL</span></div></article>
+  </div>
+</div>
 </section>
 
 <section class="download-section" id="instalacion" aria-labelledby="install-heading">
@@ -155,11 +195,35 @@
   </a>
 </div><p class="claude-setup">En Claude.ai: <strong>Personalizar → Skills → + → Crear skill → Subir un skill</strong>. En Claude Code: colocar la carpeta <code>feedback-design</code> en <code>.claude/skills/</code>. <a href="./claude/feedback-design/references/claude-integracion.md">Ver instalación completa ↗</a></p></div>
   <div class="install-steps"><div class="step"><span>01</span><div><strong>Descarga y descomprime</strong><p>Obtén la carpeta <code>feedback-design</code> en tu computador.</p></div></div><div class="step"><span>02</span><div><strong>Incorpórala a tu entorno</strong><p>Agrega <code>SKILL.md</code> y la carpeta de referencias a tu asistente o proyecto compatible.</p></div></div><div class="step"><span>03</span><div><strong>Activa el sistema</strong><p>Solicita: «Aplica Feedback Design Skill» y adjunta los archivos originales cuando existan.</p></div></div><div class="step"><span>04</span><div><strong>Produce y verifica</strong><p>Revisa contenido, tipografías, fuentes de imagen y editabilidad antes de publicar.</p></div></div></div></div>
+<div class="shell">
+<div class="asset-downloads">
+ <div><span>RECURSOS / ARCHIVOS EDITABLES</span><p>Ejemplos preparados para adaptar, no resultados de investigaciones reales.</p></div>
+ <a href="./downloads/feedback-plantillas-editables-v1.2.pptx" download><span>PPTX · Ocho láminas editables</span><span aria-hidden="true">↘</span></a>
+ <a href="./downloads/feedback-recursos-vectoriales-v1.2.zip" download><span>ZIP · Flecha, retícula y portadilla SVG</span><span aria-hidden="true">↘</span></a>
+</div>
+<div class="install-guides">
+ <details><summary><span>01 / CHATGPT</span><strong>Cómo instalar esta skill</strong><span aria-hidden="true">+</span></summary><div class="details-body"><p>En ChatGPT, abre <b>Skills → Create → Upload from your computer</b> y selecciona el ZIP de ChatGPT. Si tu cuenta no muestra Skills, adjunta <code>SKILL.md</code> y sus referencias a un proyecto compatible, sin afirmar que quedó instalado como skill.</p><a href="https://help.openai.com/en/articles/20001066-skills-in-chatgpt" rel="noopener noreferrer" target="_blank">Instrucciones oficiales de OpenAI ↗</a></div></details>
+ <details><summary><span>02 / CLAUDE</span><strong>Cómo instalar esta skill</strong><span aria-hidden="true">+</span></summary><div class="details-body"><p>En Claude.ai, utiliza <b>Personalizar → Skills → + → Crear skill → Subir un skill</b> y selecciona el ZIP para Claude. En Claude Code, coloca la carpeta <code>feedback-design</code> dentro de <code>.claude/skills/</code>.</p><a href="https://support.claude.com/en/articles/12512198-how-to-create-custom-skills" rel="noopener noreferrer" target="_blank">Instrucciones oficiales de Anthropic ↗</a></div></details>
+</div></div>
 </section>
 
-<div class="package shell" aria-labelledby="package-heading"><div><span class="overline">05 / CONTENIDO DEL PAQUETE</span><h2 id="package-heading">Todo lo necesario.<br><em>Sin extras innecesarios.</em></h2></div><div class="package-files"><a href="./skill/SKILL.md"><span>SKILL.md</span><span>Instrucciones principales ↗</span></a><a href="./skill/references/identidad-visual.md"><span>identidad-visual.md</span><span>Color y tipografías ↗</span></a><a href="./skill/references/collage-editorial.md"><span>collage-editorial.md</span><span>Fotografía y composición ↗</span></a><a href="./skill/references/presentaciones.md"><span>presentaciones.md</span><span>Slides, tablas, diagramas ↗</span></a><a href="./skill/references/ejemplos-prompts.md"><span>ejemplos-prompts.md</span><span>Instrucciones de uso ↗</span></a><a href="./skill/references/control-calidad.md"><span>control-calidad.md</span><span>Verificaciones de entrega ↗</span></a><a href="./skill/references/graficos-y-datos.md"><span>graficos-y-datos.md</span><span>Criterios de visualización ↗</span></a><a href="./claude/feedback-design/SKILL.md"><span>claude / SKILL.md</span><span>Adaptación para Claude ↗</span></a></div></div>
+
+<div class="quality-area shell" id="revision" aria-labelledby="quality-title">
+ <div class="quality-intro"><div><span class="overline">CONTROL DE CALIDAD</span><h2 id="quality-title">Antes de<br><em>entregar.</em></h2></div><p>Una comprobación mínima para presentaciones, informes y recursos visuales. Marca cada revisión cuando esté confirmada.</p></div>
+ <div class="quality-checklist" role="group" aria-label="Checklist de calidad Feedback">
+  <label><input type="checkbox" data-qa="Texto original intacto"> <span>Textos, cifras y orden original intactos</span></label>
+  <label><input type="checkbox" data-qa="Tipografías verificadas"> <span>Tipografías y jerarquías verificadas</span></label>
+  <label><input type="checkbox" data-qa="Gráficos y fuentes correctos"> <span>Escalas, unidades y fuentes revisadas</span></label>
+  <label><input type="checkbox" data-qa="Imágenes autorizadas"> <span>Imágenes y marcas con uso autorizado</span></label>
+  <label><input type="checkbox" data-qa="Editabilidad real"> <span>Objetos editables cuando se solicitaron</span></label>
+  <label><input type="checkbox" data-qa="Formato y salida verificados"> <span>Archivo abierto, márgenes y formato final revisados</span></label>
+ </div>
+ <div class="quality-bottom"><span id="qa-progress" aria-live="polite">0 de 6 comprobaciones realizadas</span><button type="button" id="qa-copy">Copiar checklist <span aria-hidden="true">↗</span></button><button type="button" id="qa-reset">Reiniciar</button><small id="qa-status" role="status"></small></div>
+</div>
+<div class="package shell" aria-labelledby="package-heading"><div><span class="overline">05 / CONTENIDO DEL PAQUETE</span><h2 id="package-heading">Todo lo necesario.<br><em>Sin extras innecesarios.</em></h2></div><div class="package-files"><a href="./downloads/feedback-plantillas-editables-v1.2.pptx" download><span>plantillas-editables-v1.2.pptx</span><span>Ocho diapositivas editables ↘</span></a><a href="./downloads/feedback-recursos-vectoriales-v1.2.zip" download><span>recursos-vectoriales-v1.2.zip</span><span>SVG editables ↘</span></a><a href="./skill/SKILL.md"><span>SKILL.md</span><span>Instrucciones principales ↗</span></a><a href="./skill/references/identidad-visual.md"><span>identidad-visual.md</span><span>Color y tipografías ↗</span></a><a href="./skill/references/collage-editorial.md"><span>collage-editorial.md</span><span>Fotografía y composición ↗</span></a><a href="./skill/references/presentaciones.md"><span>presentaciones.md</span><span>Slides, tablas, diagramas ↗</span></a><a href="./skill/references/ejemplos-prompts.md"><span>ejemplos-prompts.md</span><span>Instrucciones de uso ↗</span></a><a href="./skill/references/control-calidad.md"><span>control-calidad.md</span><span>Verificaciones de entrega ↗</span></a><a href="./skill/references/graficos-y-datos.md"><span>graficos-y-datos.md</span><span>Criterios de visualización ↗</span></a><a href="./claude/feedback-design/SKILL.md"><span>claude / SKILL.md</span><span>Adaptación para Claude ↗</span></a></div></div>
 </main>
-<footer class="footer"><div class="shell footer-grid"><div class="footer-brand"><img class="footer-logo" src="./assets/logo-feedback-display.svg" alt="Feedback" width="228" height="45"/><small>DESIGN SKILL / 2026</small></div><p>Sistema gráfico para crear con criterio y mantener la información intacta. Las fuentes comerciales no se redistribuyen. El logotipo SVG utilizado es el original suministrado para este sitio.</p><div class="footer-links"><a href="./assets/CREDITOS-FOTOS.md">Créditos fotográficos ↗</a><a href="https://github.com/maxiandradeps4-blip/visual1/tree/main/feedback-skill" rel="noopener noreferrer">Ver en GitHub ↗</a></div></div><div class="shell footer-bottom"><span>V1.1.0 — NOVIEMBRE 2026</span><span>HECHO PARA DISEÑAR MEJOR</span></div></footer>
+<footer class="footer"><div class="shell footer-grid"><div class="footer-brand"><img class="footer-logo" src="./assets/logo-feedback-display.svg" alt="Feedback" width="228" height="45"/><small>DESIGN SKILL / 2026</small></div><p>Sistema gráfico para crear con criterio y mantener la información intacta. Las fuentes comerciales no se redistribuyen. El logotipo SVG utilizado es el original suministrado para este sitio.</p><div class="footer-links"><a href="./USO-Y-LICENCIAS.md">Uso y licencias ↗</a><a href="./CAMBIOS.md">Novedades v1.2 ↗</a><a href="https://github.com/maxiandradeps4-blip/visual1/issues/new" target="_blank" rel="noopener noreferrer">Reportar un problema ↗</a><a href="./assets/CREDITOS-FOTOS.md">Créditos fotográficos ↗</a><a href="https://github.com/maxiandradeps4-blip/visual1/tree/main/feedback-skill" rel="noopener noreferrer">Ver en GitHub ↗</a></div></div><div class="shell footer-bottom"><span>V1.2.0 — NOVIEMBRE 2026</span><span>HECHO PARA DISEÑAR MEJOR</span></div></footer>
 <script src="./app.js" defer></script>
+<script src="./toolkit.js" defer></script>
 </body>
 </html>
