@@ -15,7 +15,7 @@ Web: https://maxiandradeps4-blip.github.io/visual1/feedback-skill/
 - **ChatGPT:** [feedback-design-skill-v1.2.0.zip](downloads/feedback-design-skill-v1.2.0.zip)
 - **Claude.ai y Claude Code:** [feedback-design-skill-claude-v1.2.0.zip](downloads/feedback-design-skill-claude-v1.2.0.zip)
 - **PowerPoint editable:** [feedback-plantillas-editables-v1.2.pptx](downloads/feedback-plantillas-editables-v1.2.pptx)
-- **Word institucional editable:** [feedback-documento-institucional-v1.2.docx](downloads/feedback-documento-institucional-v1.2.docx) — cuatro páginas A4: portada, síntesis, desarrollo y conclusiones.
+- **Word institucional editable:** [feedback-documento-institucional-2026.docx](downloads/feedback-documento-institucional-2026.docx) — cuatro páginas A4: portada, síntesis, desarrollo y conclusiones; rediseño editorial 2026 con fuentes de visualización sustitutas (Georgia/Arial) hasta disponer de licencias de Baskerville MT Std y Akzidenz-Grotesk Pro.
 - **Recursos SVG:** [feedback-recursos-vectoriales-v1.2.zip](downloads/feedback-recursos-vectoriales-v1.2.zip)
 
 Los ejemplos del PPTX y los gráficos contienen **datos simulados** y no representan mediciones reales. Las plantillas

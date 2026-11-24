@@ -23,7 +23,7 @@
   const sources=document.getElementById('builder-sources');
   const names={presentacion:'presentación',word:'documento institucional de Word',collage:'collage editorial',grafico:'gráfico de datos',portadilla:'portadilla',diagrama:'diagrama'};
   const descriptions={
-    word:'Crea o rediseña un documento A4 con portada, encabezados, pie de página, estilos de título, tablas y párrafos nativos de Word. Aplica retícula editorial, jerarquías claras y márgenes amplios. Preserva las fuentes y el contenido íntegro, sin inventar información institucional.',
+    word:'Crea o rediseña un documento A4 con portada, encabezados, pie de página, estilos de título, tablas y párrafos nativos de Word. Aplica diseño editorial institucional de 2026: jerarquías tipográficas amplias, retícula asimétrica, filetes precisos, aire y contraste funcional. Conserva íntegros los textos, datos y fuentes, sin inventar información institucional.',
     presentacion:'Trabaja con una retícula editorial contemporánea, jerarquías claras, espacios blancos y composición profesional. Mantén la cantidad y el orden de láminas salvo una indicación explícita.',
     collage:'Integra fotografía principalmente en blanco y negro con recortes precisos, geometrías coral #F04D51 y cian #0BB0D2. Une los elementos mediante una idea, sin agregar textos o rostros no solicitados.',
     grafico:'Elige el tipo de visualización según la pregunta, respeta escalas y ejes, mantén cada observación e identifica las unidades y fuentes. Usa coral y cian solo para comparaciones justificadas.',
