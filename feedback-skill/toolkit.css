@@ -106,3 +106,12 @@
 #prompt-visual[data-kind="word"] img{width:auto;max-width:100%;height:100%;margin-inline:auto;object-fit:contain}
 @media(max-width:850px){.word-feature{grid-template-columns:1fr;gap:35px}.word-feature-preview{justify-self:start;max-width:310px}.asset-downloads{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:550px){.word-feature{margin-top:69px;padding:29px 0 40px}.word-feature-copy h3{font-size:47px}.word-feature-preview{max-width:260px}.asset-downloads{grid-template-columns:1fr}}
+
+/* Presentar plantilla base y demostración como dos salidas claramente diferenciadas */
+.word-download-options{display:flex;flex-direction:column;align-items:flex-start;gap:7px;margin-top:21px}
+.word-download-options .word-feature-link{margin-top:0;min-width:min(100%,340px)}
+.word-download-options .word-example-link{border-bottom-color:#0BB0D2}
+.word-download-options .word-example-link:hover{color:#157A8C}
+.word-demo-disclaimer{font-size:11px;line-height:1.6;color:#62686B;max-width:350px;margin-top:10px}
+.asset-downloads{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:550px){.asset-downloads{grid-template-columns:1fr}}

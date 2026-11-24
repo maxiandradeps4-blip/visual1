@@ -16,6 +16,7 @@ Web: https://maxiandradeps4-blip.github.io/visual1/feedback-skill/
 - **Claude.ai y Claude Code:** [feedback-design-skill-claude-v1.2.0.zip](downloads/feedback-design-skill-claude-v1.2.0.zip)
 - **PowerPoint editable:** [feedback-plantillas-editables-v1.2.pptx](downloads/feedback-plantillas-editables-v1.2.pptx)
 - **Word institucional editable:** [feedback-documento-institucional-2026.docx](downloads/feedback-documento-institucional-2026.docx) — cuatro páginas A4: portada, síntesis, desarrollo y conclusiones; rediseño editorial 2026 con fuentes de visualización sustitutas (Georgia/Arial) hasta disponer de licencias de Baskerville MT Std y Akzidenz-Grotesk Pro.
+- **Informe Word con datos ficticios:** [feedback-documento-institucional-2026-ejemplo-simulado.docx](downloads/feedback-documento-institucional-2026-ejemplo-simulado.docx) — «Comunicación y confianza», cuatro páginas A4 totalmente simuladas; incluye indicadores 74 %, 61 %, 70 % y 82 % solo como ejemplos, con fuentes y responsables ficticios.
 - **Recursos SVG:** [feedback-recursos-vectoriales-v1.2.zip](downloads/feedback-recursos-vectoriales-v1.2.zip)
 
 Los ejemplos del PPTX y los gráficos contienen **datos simulados** y no representan mediciones reales. Las plantillas
