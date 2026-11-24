@@ -27,6 +27,9 @@ antes de tocar la composición. No omitir celdas, fuentes ni notas visibles de l
 - Rotular todos los nodos requeridos, usar ruteo claro y espacios suficientes.
 - No atribuir conclusiones a cifras que no fueron proporcionadas.
 
+## Gráficos estadísticos
+Consultar [graficos-y-datos.md](graficos-y-datos.md) para seleccionar entre barras, líneas, anillo y dispersión. Respetar escalas, valores, unidades y fuentes, sin agregar tendencias ni relaciones inferidas. Los ejemplos sin datos son esquemáticos, no mediciones reales.
+
 ## Entrega
 - **PPTX editable**: texto nativo, formas y líneas nativas, tablas nativas cuando sea posible.
   Fotografía puede seguir siendo raster, pero no convertir todo el slide en imagen y llamarlo editable.

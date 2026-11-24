@@ -1,4 +1,4 @@
-# Feedback Design Skill · v1.0.0
+# Feedback Design Skill · v1.1.0
 
 Sistema de instrucciones gráficas para diseñar **collages editoriales, presentaciones, portadillas, diagramas y piezas visuales** con el lenguaje Feedback.
 
@@ -9,6 +9,12 @@ Sistema de instrucciones gráficas para diseñar **collages editoriales, present
 - Define criterios específicos para collage editorial, cultura visual chilena, minería, comunicación, economía y territorio.
 - Rediseña presentaciones preservando íntegramente información, orden y estructura salvo permiso expreso.
 - Prepara diseños 16:9, 1:1, 9:16, 3:4 y formatos especiales, sin inventar contenido.
+- Orienta el uso de barras, líneas, anillos, dispersión, tablas y diagramas con criterios de fidelidad al dato.
+
+## Guía de gráficos y descarga
+El sitio se organiza en **tres bloques**: introducción, guía interactiva de seis visualizaciones y descarga/instalación. Los ejemplos son esquemáticos; no presentan datos reales. El material descargable incorpora las mismas reglas en `references/graficos-y-datos.md`.
+
+**ZIP:** [`feedback-design-skill-v1.1.0.zip`](downloads/feedback-design-skill-v1.1.0.zip)
 
 ## Cómo utilizarlo
 1. Descarga el ZIP y descomprímelo.
@@ -25,7 +31,7 @@ No es una extensión ejecutable ni crea imágenes de manera autónoma fuera del 
 - Nunca se presupone autorización para crear fotografías periodísticas falsas ni para alterar datos.
 - Para producción pública, usar assets originales suministrados y validar licencias y permisos.
 
-**Versión:** 1.0.0 · 20-11-2026
+**Versión:** 1.1.0 · 24-11-2026
 
 Sitio: `https://maxiandradeps4-blip.github.io/visual1/feedback-skill/`. Se publica automáticamente desde la rama `main` mediante GitHub Pages (publicación desde la rama), conservando las demás rutas del repositorio `visual1`.
 

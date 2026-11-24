@@ -5,7 +5,7 @@ description: >
   piezas institucionales y presentaciones editables. Activar cuando el usuario solicite
   "estilo Feedback", "collage editorial Feedback", "slide Feedback" o adaptación de materiales
   de Feedback. La prioridad es fidelidad al contenido, precisión territorial y calidad editorial.
-version: 1.0.0
+version: 1.1.0
 ---
 
 # Feedback Design Skill
@@ -55,6 +55,17 @@ Cuando hay una pieza, PDF, PPT, Word, texto, tabla o imagen de referencia:
 - Títulos legibles a distancia y cuerpos de texto con contraste suficiente.
 - Leer: [presentaciones.md](references/presentaciones.md).
 
+## Visualización de datos
+- Elige la forma del gráfico según la pregunta que el dato debe responder, no por decoración.
+- Barras: comparar categorías; escala desde cero en barras convencionales, etiquetas completas y proporciones fieles.
+- Líneas: evolución temporal; intervalos reales, sin inventar puntos o alisar tendencias que alteren datos.
+- Anillo: solo partes de un mismo total, pocas categorías y porcentajes consistentes.
+- Dispersión: relación entre dos variables numéricas; preservar cada coordenada y no confundir correlación con causalidad.
+- Tablas: lectura exacta; preservar todas las filas, columnas, celdas, títulos y notas.
+- Diagramas: etapas y relaciones verificadas; ninguna conexión ornamental que implique causalidad inexistente.
+- Todos los ejemplos sin datos reales deben estar expresamente señalados como **esquemáticos**.
+- Consultar [graficos-y-datos.md](references/graficos-y-datos.md) para criterios y pautas de producción.
+
 ## Método de trabajo
 1. **Leer** el encargo y extraer restricciones: tema, formato, entregable, contenido fijo, audiencia y referencias.
 2. **Inventariar**: registrar textos y números que no pueden alterarse. Confirmar los materiales originales disponibles.
@@ -68,6 +79,7 @@ Cuando hay una pieza, PDF, PPT, Word, texto, tabla o imagen de referencia:
 - Identidad: [identidad-visual.md](references/identidad-visual.md)
 - Collage: [collage-editorial.md](references/collage-editorial.md)
 - Presentaciones: [presentaciones.md](references/presentaciones.md)
+- Gráficos y datos: [graficos-y-datos.md](references/graficos-y-datos.md)
 - Prompts: [ejemplos-prompts.md](references/ejemplos-prompts.md)
 - Control: [control-calidad.md](references/control-calidad.md)
 - Tokens: [tokens.json](assets/tokens.json)
