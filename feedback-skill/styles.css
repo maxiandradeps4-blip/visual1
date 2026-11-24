@@ -136,6 +136,9 @@
 /* Home: collage 20% mayor que su tamaño original, conservando la proporción. */
 .hero-grid .poster.hero-art.photo-frame{overflow:visible!important;position:relative}
 .hero-grid .poster.hero-art.photo-frame>img{transform:scale(1.2);transform-origin:center center;max-width:none}
+@media(max-width:1150px){
+ .hero-grid .poster.hero-art.photo-frame{overflow:hidden!important}
+}
 @media(max-width:720px){
  .hero-grid .poster.hero-art.photo-frame{overflow:hidden!important}
  .hero-grid .poster.hero-art.photo-frame>img{transform:scale(1.2)}
