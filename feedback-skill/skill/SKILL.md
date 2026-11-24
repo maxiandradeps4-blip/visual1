@@ -5,7 +5,7 @@ description: >
   piezas institucionales y presentaciones editables. Activar cuando el usuario solicite
   "estilo Feedback", "collage editorial Feedback", "slide Feedback" o adaptación de materiales
   de Feedback. La prioridad es fidelidad al contenido, precisión territorial y calidad editorial.
-version: 1.1.0
+version: 1.2.0
 ---
 
 # Feedback Design Skill
@@ -87,3 +87,12 @@ Cuando hay una pieza, PDF, PPT, Word, texto, tabla o imagen de referencia:
 ## Respuesta al usuario
 Habla de forma breve y concreta. Propón alternativas solo si se solicitaron o solucionan una limitación material.
 Prioriza mostrar y entregar una pieza terminada cuando la herramienta lo permita.
+
+## Recursos complementarios v1.2
+- La página de Feedback Design Skill ofrece un generador de instrucciones, una checklist de calidad y vistas de aplicación antes/después únicamente demostrativas.
+- Hay ocho plantillas PPTX con formas y textos nativos editables, y un paquete de recursos SVG. Son archivos complementarios, separados del ZIP del skill.
+- La plantilla 12×12 y los gráficos de muestra contienen **datos simulados**, no resultados de estudios reales.
+- Nunca sustituir datos del usuario por los de la plantilla. Copiar primero el contenido literal de la fuente y verificar después.
+- El archivo `assets/logo-feedback-original.svg` puede utilizarse solo con autorización para la marca y debe conservar su diseño original.
+- En esta versión la fecha de referencia es noviembre de 2026; nuevas fuentes o requisitos se confirman cuando corresponda.
+- Pruebas funcionales: [pruebas-skill.md](references/pruebas-skill.md).

@@ -1,5 +1,9 @@
 # Registro de versiones
 
+## v1.2.0 — 24 de noviembre de 2026
+- Sincronización de lineamientos con Feedback Skill v1.2.
+- Pruebas de calidad, instalación orientada a Claude.ai y Claude Code, recursos complementarios.
+
 ## v1.1.0 — 24 de noviembre de 2026
 - Guía ampliada de selección y uso de seis tipos de gráficos.
 - Reglas de fidelidad de escalas, ejes, porcentajes, puntos y conexiones.

@@ -1,5 +1,11 @@
 # Registro de versiones
 
+## v1.2.0 — 24 de noviembre de 2026
+- Generador de instrucciones, checklist y muestra editorial de aplicaciones.
+- Plantillas PPTX editables y recursos SVG complementarios.
+- Guía de instalación ChatGPT/Claude, metadatos web, navegación móvil y ajustes de contraste.
+- Instrucciones de prueba y política de uso de recursos de marca.
+
 ## v1.1.0 — 24 de noviembre de 2026
 - Guía ampliada de selección y uso de seis tipos de gráficos.
 - Reglas de fidelidad de escalas, ejes, porcentajes, puntos y conexiones.

@@ -13,7 +13,7 @@ las dependencias necesarias y el usuario lo ha autorizado.
 ## Claude.ai
 1. Accede a **Personalizar / Customize → Skills**.
 2. Usa **+ → Crear skill → Subir un skill / Upload a skill**.
-3. Sube el ZIP `feedback-design-skill-claude-v1.1.0.zip`.
+3. Sube el ZIP `feedback-design-skill-claude-v1.2.0.zip`.
 4. Activa el skill. Prueba: "Aplica Feedback Design Skill a estos datos y conserva todos los valores".
 
 El ZIP debe contener la carpeta `feedback-design/` directamente, con `SKILL.md` en ella.
@@ -43,3 +43,9 @@ No es necesario descomprimir para subir el archivo ZIP a Claude.ai.
 ## Dependencias y limitaciones
 No incluye código ejecutable ni instaladores. El resultado depende de las herramientas activas
 para crear imágenes, SVG, PPTX, PDF o documentos. Las fuentes comerciales no vienen incluidas.
+
+## Plantillas y guías v1.2
+- Plantillas PPTX editables y kit SVG disponibles en el sitio, por separado del ZIP de Claude.
+- La adaptación conserva el contenido de la fuente; no usa ejemplos numéricos simulados como resultados reales.
+- Guía oficial: https://support.claude.com/en/articles/12512198-how-to-create-custom-skills
+- Para comparar resultados, consulta `references/pruebas-skill.md`.
