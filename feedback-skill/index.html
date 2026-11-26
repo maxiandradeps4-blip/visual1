@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" class="feedback-locked">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,7 +7,7 @@
 <meta name="description" content="Descarga Feedback Design Skill: identidad gráfica, collage editorial, presentaciones y diagramas en el estilo Feedback.">
 <title>Feedback Design Skill · Sistema editorial y recursos editables</title>
 <link rel="canonical" href="https://maxiandradeps4-blip.github.io/visual1/feedback-skill/">
-<meta name="robots" content="index,follow">
+<meta name="robots" content="noindex,nofollow">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="es_CL">
 <meta property="og:site_name" content="Feedback Design Skill">
@@ -23,8 +23,45 @@
 <link rel="icon" type="image/svg+xml" href="./favicon.svg">
 <link rel="stylesheet" href="./styles.css">
 <link rel="stylesheet" href="./toolkit.css">
+<style>
+#feedback-access{display:none}
+html.feedback-locked body{overflow:hidden}
+html.feedback-locked body>:not(#feedback-access):not(script){display:none!important}
+html.feedback-locked #feedback-access{display:flex;position:fixed;inset:0;z-index:2147483647;overflow:auto;background:#fff;align-items:center;justify-content:center;padding:28px;box-sizing:border-box;color:#111}
+#feedback-access *{box-sizing:border-box}
+#feedback-access .access-panel{width:min(100%,400px);margin:auto}
+#feedback-access .access-brand{width:184px;height:auto;display:block;margin-bottom:60px}
+#feedback-access .access-kicker{font:600 11px/1.5 "Akzidenz-Grotesk Pro",Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;border-top:3px solid #F04D51;padding-top:16px;margin:0 0 24px}
+#feedback-access h1{font:400 clamp(36px,7vw,52px)/1.04 "Baskerville MT Std",Baskerville,Georgia,serif;letter-spacing:-.035em;margin:0 0 16px}
+#feedback-access .access-intro{font:400 15px/1.6 "Akzidenz-Grotesk Pro",Arial,sans-serif;color:#555;margin:0 0 32px}
+#feedback-access label{display:block;font:600 12px/1.5 "Akzidenz-Grotesk Pro",Arial,sans-serif;margin-bottom:8px}
+#feedback-access input{width:100%;border:1px solid #aaa;border-radius:0;background:#fff;padding:15px;font:16px Arial,sans-serif;color:#111}
+#feedback-access input:focus-visible,#feedback-access button:focus-visible,#feedback-logout:focus-visible{outline:2px solid #0BB0D2;outline-offset:3px}
+#feedback-access button{display:flex;justify-content:space-between;width:100%;background:#111;color:#fff;border:0;border-radius:0;padding:16px 18px;margin-top:12px;font:600 14px "Akzidenz-Grotesk Pro",Arial,sans-serif;cursor:pointer}
+#feedback-access button:hover{background:#333}
+#feedback-access button:disabled{opacity:.6;cursor:wait}
+#feedback-access .access-message{font:13px/1.5 Arial,sans-serif;color:#a6232a;min-height:20px;margin:12px 0 0}
+#feedback-access .access-footer{font:11px/1.5 Arial,sans-serif;letter-spacing:.12em;color:#777;margin-top:44px}
+#feedback-logout{display:block;margin:16px auto;padding:9px 14px;background:#fff;color:#111;border:1px solid #bbb;font:12px Arial,sans-serif;cursor:pointer}
+</style>
 </head>
 <body>
+<section id="feedback-access" aria-labelledby="feedback-access-title">
+<div class="access-panel">
+<img class="access-brand" src="./assets/logo-feedback-display.svg" alt="Feedback" width="228" height="45">
+<p class="access-kicker">Design Skill / Acceso</p>
+<h1 id="feedback-access-title">Diseñar como<br><em>Feedback.</em></h1>
+<p class="access-intro">Ingresa la clave de acceso para explorar el sistema gráfico y sus recursos.</p>
+<form id="feedback-access-form">
+<label for="feedback-password">Clave de acceso</label>
+<input id="feedback-password" type="password" autocomplete="current-password" required>
+<button id="feedback-enter" type="submit">Ingresar <span aria-hidden="true">↗</span></button>
+<p class="access-message" id="feedback-access-message" role="status" aria-live="polite"></p>
+</form>
+<noscript>Activa JavaScript para ingresar al sitio.</noscript>
+<p class="access-footer">FEEDBACK DESIGN SKILL · 2026</p>
+</div>
+</section>
 <a class="skip" href="#contenido">Ir al contenido</a>
 <header class="nav shell">
   <a class="brand" href="#inicio" aria-label="Feedback Design Skill — inicio"><img class="brand-logo" src="./assets/logo-feedback-display.svg" alt="Feedback" width="228" height="45" /><span class="brand-system">DESIGN SKILL</span></a>
@@ -256,5 +293,28 @@
 <footer class="footer"><div class="shell footer-grid"><div class="footer-brand"><img class="footer-logo" src="./assets/logo-feedback-display.svg" alt="Feedback" width="228" height="45"/><small>DESIGN SKILL / 2026</small></div><p>Sistema gráfico para crear con criterio y mantener la información intacta. Las fuentes comerciales no se redistribuyen. El logotipo SVG utilizado es el original suministrado para este sitio.</p><div class="footer-links"><a href="./USO-Y-LICENCIAS.md">Uso y licencias ↗</a><a href="./CAMBIOS.md">Novedades v1.2 ↗</a><a href="https://github.com/maxiandradeps4-blip/visual1/issues/new" target="_blank" rel="noopener noreferrer">Reportar un problema ↗</a><a href="./assets/CREDITOS-FOTOS.md">Créditos fotográficos ↗</a><a href="https://github.com/maxiandradeps4-blip/visual1/tree/main/feedback-skill" rel="noopener noreferrer">Ver en GitHub ↗</a></div></div><div class="shell footer-bottom"><span>V1.2.0 — NOVIEMBRE 2026</span><span>HECHO PARA DISEÑAR MEJOR</span></div></footer>
 <script src="./app.js" defer></script>
 <script src="./toolkit.js" defer></script>
+<button id="feedback-logout" type="button">Cerrar sesión</button>
+<script>
+(function(){
+"use strict";
+const key="feedback-skill-access-v1";
+const expected="322017cfdfe2b45978b4c21bdd4792f914e47a33f7be7618f4779b65c2ca2194";
+const root=document.documentElement,form=document.getElementById("feedback-access-form"),field=document.getElementById("feedback-password"),message=document.getElementById("feedback-access-message"),enter=document.getElementById("feedback-enter");
+function unlock(){root.classList.remove("feedback-locked");if(location.hash){requestAnimationFrame(function(){const el=document.getElementById(location.hash.slice(1));if(el)el.scrollIntoView();});}}
+function lock(){root.classList.add("feedback-locked");field.value="";message.textContent="";field.focus();}
+try{if(sessionStorage.getItem(key)==="1")unlock();}catch(e){}
+form.addEventListener("submit",async function(e){
+e.preventDefault();enter.disabled=true;message.textContent="";
+try{
+const bytes=new TextEncoder().encode(field.value);
+const hash=Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",bytes)),b=>b.toString(16).padStart(2,"0")).join("");
+if(hash===expected){try{sessionStorage.setItem(key,"1");}catch(e){}field.value="";unlock();}
+else{message.textContent="Clave incorrecta. Inténtalo nuevamente.";field.select();}
+}catch(e){message.textContent="No se pudo verificar la clave. Usa un navegador actualizado y una conexión HTTPS.";}
+finally{enter.disabled=false;}
+});
+document.getElementById("feedback-logout").addEventListener("click",function(){try{sessionStorage.removeItem(key);}catch(e){}lock();});
+})();
+</script>
 </body>
 </html>
