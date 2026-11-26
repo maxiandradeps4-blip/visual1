@@ -25,8 +25,8 @@
   const descriptions={
     word:'Crea o rediseña un documento A4 con portada, encabezados, pie de página, estilos de título, tablas y párrafos nativos de Word. Aplica diseño editorial institucional de 2026: jerarquías tipográficas amplias, retícula asimétrica, filetes precisos, aire y contraste funcional. Conserva íntegros los textos, datos y fuentes, sin inventar información institucional.',
     presentacion:'Trabaja con una retícula editorial contemporánea, jerarquías claras, espacios blancos y composición profesional. Mantén la cantidad y el orden de láminas salvo una indicación explícita.',
-    collage:'Integra fotografía principalmente en blanco y negro con recortes precisos, geometrías coral #F04D51 y cian #0BB0D2. Une los elementos mediante una idea, sin agregar textos o rostros no solicitados.',
-    grafico:'Elige el tipo de visualización según la pregunta, respeta escalas y ejes, mantén cada observación e identifica las unidades y fuentes. Usa coral y cian solo para comparaciones justificadas.',
+    collage:'Integra fotografía principalmente en blanco y negro con recortes precisos, geometrías coral #F04D51 y cian #0BB0D2. Parte de 2–3 ejes del documento; justifica cada fragmento, usa 2–3 recortes fotográficos y 1–2 formas, sin agregar textos o rostros no solicitados.',
+    grafico:'Elige el tipo de visualización según la pregunta, respeta escalas y ejes, mantén cada observación e identifica las unidades y fuentes. Usa barras, sectores y áreas grises o cian, nunca negras; un único foco coral. Etiqueta valores directamente.',
     portadilla:'Da protagonismo a un título en caja mixta, una flecha geométrica grande cuando corresponda, retícula asimétrica y amplio espacio negativo.',
     diagrama:'Organiza etapas y actores con jerarquía editorial; usa solamente conexiones y sentidos de flecha presentes en la fuente.'
   };
@@ -41,7 +41,7 @@
     if(sources.checked)notes.push('Si utilizas referencias territoriales, fuentes o imágenes, comprueba su procedencia y no presentes contenido sintético como registro documental.');
     if(mode==='PPTX editable'||mode==='SVG editable'||mode==='DOCX editable')notes.push('Construye textos, gráficos y formas editables, evitando láminas planas salvo fotografías.');
     else notes.push('Exporta al formato solicitado y no declares el resultado editable si se trata de una imagen plana.');
-    result.textContent=`Aplica Feedback Design Skill. Diseña ${names[type]} sobre ${subject}, en formato ${ratio.value}, con entrega ${mode}. ${descriptions[type]} ${notes.join(' ')} Usa Baskerville MT Std y Akzidenz-Grotesk Pro cuando las fuentes estén legalmente disponibles; en caso contrario, informa la sustitución tipográfica.`;
+    result.textContent=`Aplica Feedback Design Skill v2.0.0. Diseña ${names[type]} sobre ${subject}, en formato ${ratio.value}, con entrega ${mode}. ${descriptions[type]} ${notes.join(' ')} Define una retícula de 12 columnas, márgenes del 6–7 %, espacios en escala de 8 px y máximo tres tamaños de texto y cifra. Nunca uses cian en texto ni coral en texto menor de 24 px. Usa Baskerville MT Std y Akzidenz-Grotesk Pro cuando estén legalmente disponibles; informa sustituciones. Coteja cifras y verifica legibilidad y desbordes antes de entregar.`;
     if(copied)copied.textContent='';
   }
   if(form&&piece&&ratio&&output&&topic&&result){
